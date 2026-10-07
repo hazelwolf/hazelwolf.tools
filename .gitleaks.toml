@@ -1,0 +1,11 @@
+title = "tools workspace gitleaks config"
+
+[extend]
+useDefault = true   # keep all built-in rules
+
+[allowlist]
+description = "Placeholders and generated files"
+paths = [
+  '''(^|/)\.env\.example$''',   # empty placeholders only; never put real values here
+  '''(^|/)uv\.lock$''',
+]

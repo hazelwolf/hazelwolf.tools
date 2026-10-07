@@ -1,0 +1,7 @@
+Tools workspace (AI agent tools: API + MCP + skills)
+Copyright 2026 HazelWolf
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This repository includes third-party open-source projects as git submodules (see .gitmodules).
+They are NOT covered by this license and keep their own licenses. See docs/legal/LICENSE-NOTES.md.
