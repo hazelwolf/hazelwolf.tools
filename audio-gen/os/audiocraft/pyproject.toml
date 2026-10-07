@@ -1,0 +1,62 @@
+[project]
+name = "audiocraft-service"
+version = "0.1.0"
+description = "API + MCP wrapper around Meta AudioCraft (MusicGen, MusicGen-Style, AudioGen, MAGNeT, JASCO, EnCodec, MBD, AudioSeal)"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "audiocraft",
+    "torch>=2.7",
+    "torchaudio>=2.7",
+    "torchvision",
+    "xformers",
+    "numpy<2.4",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "mcp>=1.2,<2",
+    "python-dotenv",
+    "python-multipart",
+    "audioseal==0.1.4",
+    "torchmetrics>=1.9.0",
+    "pesq>=0.0.4",
+    "pystoi>=0.4.1",
+]
+
+[dependency-groups]
+dev = ["pytest", "httpx"]
+
+[project.scripts]
+audiocraft-api = "audiocraft_service.api:main"
+audiocraft-mcp = "audiocraft_service.mcp_server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/audiocraft_service"]
+
+[tool.uv.sources]
+audiocraft = { path = "upstream", editable = true }
+torch = { index = "pytorch-cu128" }
+torchaudio = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+# Upstream pins torch 2.1 / xformers<0.0.23 etc., which predate Blackwell (sm_120) support.
+# Override them so audiocraft installs against a modern CUDA 12.8 torch.
+[tool.uv]
+override-dependencies = [
+    "torch>=2.7",
+    "torchaudio>=2.7",
+    "torchvision>=0.22",
+    "torchtext; python_version < '0'",
+    "xformers",
+    "av>=12",
+    "spacy>=3.8",
+    "numpy<2.4",
+]

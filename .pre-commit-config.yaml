@@ -1,0 +1,10 @@
+# Install once per clone:  pre-commit install --install-hooks
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks          # scans staged changes using .gitleaks.toml
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.10
+    hooks:
+      - id: ruff-check        # config in ruff.toml; submodules (**/upstream) are excluded

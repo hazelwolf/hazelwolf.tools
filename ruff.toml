@@ -1,0 +1,17 @@
+line-length = 120
+target-version = "py310"
+force-exclude = true
+extend-exclude = [
+  "**/upstream",   # git submodules (third-party OS repos) are never linted
+  "**/models",
+  "**/outputs",
+]
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = [
+  "B008",  # FastAPI Depends()/File() defaults
+]
+
+[lint.per-file-ignores]
+"**/mcp_server.py" = ["E501"]  # tool docstrings are the descriptions agents read; keep them as prose
