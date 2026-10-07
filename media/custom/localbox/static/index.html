@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Localbox</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10140f;
+      --panel: #1a2118;
+      --line: #31402c;
+      --text: #e7f0e2;
+      --muted: #9aab94;
+      --accent: #c6f25d;
+      --accent-ink: #17200c;
+      --danger: #ff8d7a;
+      --ok: #b6e38a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font: 16px/1.45 "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.7rem;
+      letter-spacing: -0.03em;
+    }
+    .lede { margin: 0 0 18px; color: var(--muted); }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+    select, button {
+      font: inherit;
+    }
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+    }
+    .drop {
+      margin-top: 16px;
+      min-height: 220px;
+      border: 1.5px dashed var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-align: center;
+      padding: 24px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .drop.over {
+      border-color: var(--accent);
+      background: #222b1c;
+    }
+    .drop strong { font-size: 1.15rem; }
+    .drop p { margin: 0; color: var(--muted); }
+    button.pick {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-weight: 650;
+      cursor: pointer;
+    }
+    #file {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+    ul.results {
+      list-style: none;
+      padding: 0;
+      margin: 18px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    li.item {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .row { display: flex; justify-content: space-between; gap: 12px; }
+    .name { font-weight: 650; word-break: break-all; }
+    .meta { color: var(--muted); font-size: 0.85rem; }
+    .path { margin: 8px 0 0; font-family: ui-monospace, monospace; font-size: 0.82rem; word-break: break-all; }
+    .bar {
+      margin-top: 8px;
+      height: 6px;
+      border-radius: 99px;
+      background: #2a3326;
+      overflow: hidden;
+    }
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+    }
+    .ok { color: var(--ok); }
+    .err { color: var(--danger); }
+    .urls {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .urls a { color: var(--accent); }
+    .urls code { color: var(--text); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Localbox</h1>
+    <p class="lede">Drop images and videos. They land in the folder for the tag you pick. Default is ComfyUI input.</p>
+    <label for="destination">Destination</label>
+    <select id="destination"></select>
+    <div class="drop" id="drop">
+      <strong>Drop files here</strong>
+      <p>png, jpg, webp, gif, mp4, webm, mov, mkv</p>
+      <button class="pick" type="button" id="pick">Choose files</button>
+      <input id="file" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.gif,.mp4,.webm,.mov,.mkv,image/*,video/*">
+    </div>
+    <ul class="results" id="results"></ul>
+    <div class="urls" id="urls"></div>
+  </main>
+  <script>
+    const destination = document.getElementById("destination");
+    const drop = document.getElementById("drop");
+    const fileInput = document.getElementById("file");
+    const results = document.getElementById("results");
+    const urls = document.getElementById("urls");
+
+    function item(name) {
+      const li = document.createElement("li");
+      li.className = "item";
+      li.innerHTML = `<div class="row"><span class="name"></span><span class="meta"></span></div><div class="bar"><span></span></div><p class="path"></p>`;
+      li.querySelector(".name").textContent = name;
+      results.prepend(li);
+      return li;
+    }
+
+    function uploadOne(file) {
+      const li = item(file.name);
+      const meta = li.querySelector(".meta");
+      const bar = li.querySelector(".bar > span");
+      const path = li.querySelector(".path");
+      meta.textContent = "uploading";
+      const body = new FormData();
+      body.append("destination", destination.value);
+      body.append("file", file, file.name);
+      return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/upload");
+        xhr.upload.onprogress = (ev) => {
+          if (ev.lengthComputable) bar.style.width = Math.round((ev.loaded / ev.total) * 100) + "%";
+        };
+        xhr.onload = () => {
+          bar.style.width = "100%";
+          let payload = {};
+          try { payload = JSON.parse(xhr.responseText); } catch (_) {}
+          if (xhr.status >= 200 && xhr.status < 300) {
+            meta.textContent = "saved";
+            meta.className = "meta ok";
+            path.textContent = payload.path;
+          } else {
+            meta.textContent = "failed";
+            meta.className = "meta err";
+            path.textContent = payload.error || xhr.statusText;
+          }
+          resolve();
+        };
+        xhr.onerror = () => {
+          meta.textContent = "failed";
+          meta.className = "meta err";
+          path.textContent = "Network error";
+          resolve();
+        };
+        xhr.send(body);
+      });
+    }
+
+    async function uploadAll(fileList) {
+      const files = [...fileList];
+      for (const file of files) await uploadOne(file);
+    }
+
+    document.getElementById("pick").addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files.length) uploadAll(fileInput.files);
+      fileInput.value = "";
+    });
+    ["dragenter", "dragover"].forEach((name) => {
+      drop.addEventListener(name, (ev) => {
+        ev.preventDefault();
+        drop.classList.add("over");
+      });
+    });
+    ["dragleave", "drop"].forEach((name) => {
+      drop.addEventListener(name, (ev) => {
+        ev.preventDefault();
+        drop.classList.remove("over");
+      });
+    });
+    drop.addEventListener("drop", (ev) => {
+      if (ev.dataTransfer.files.length) uploadAll(ev.dataTransfer.files);
+    });
+
+    fetch("/health").then((r) => r.json()).then((info) => {
+      destination.innerHTML = "";
+      for (const row of info.destinations) {
+        const opt = document.createElement("option");
+        opt.value = row.tag;
+        opt.textContent = row.tag + "  →  " + row.path;
+        opt.selected = row.default;
+        destination.appendChild(opt);
+      }
+      if (info.lan_urls && info.lan_urls.length) {
+        urls.textContent = "";
+        urls.append("On this network: ");
+        info.lan_urls.forEach((u, i) => {
+          if (i) urls.append(" · ");
+          const a = document.createElement("a");
+          a.href = u;
+          a.textContent = u;
+          urls.append(a);
+        });
+      } else {
+        urls.textContent = "Open this page from another device using this machine's LAN address and port " + info.port + ".";
+      }
+    }).catch(() => {
+      urls.textContent = "Could not load destinations.";
+    });
+  </script>
+</body>
+</html>

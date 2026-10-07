@@ -8,3 +8,4 @@ repos:
     rev: v0.16.10
     hooks:
       - id: ruff-check        # config in ruff.toml; submodules (**/upstream) are excluded
+      - id: ruff-format       # same config; rewrites staged files to the formatter's style

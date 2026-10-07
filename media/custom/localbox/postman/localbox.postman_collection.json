@@ -1,0 +1,46 @@
+{
+  "info": {
+    "name": "Localbox",
+    "description": "LAN drop page and upload API. Default destination tag comfy writes to ComfyUI input.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://127.0.0.1:8120"}
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health",
+        "description": "Bind host, port, LAN URLs, destination tags and paths, size cap, allowed suffixes."
+      }
+    },
+    {
+      "name": "Destinations",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/destinations",
+        "description": "Tags and which one is the default (comfy when configured)."
+      }
+    },
+    {
+      "name": "Upload",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {"key": "destination", "value": "comfy", "type": "text"},
+            {"key": "file", "type": "file", "src": "", "description": "png, jpg, jpeg, webp, gif, mp4, webm, mov, or mkv"}
+          ]
+        },
+        "url": "{{baseUrl}}/upload",
+        "description": "Save one file into the destination tag. Response includes the absolute path."
+      }
+    }
+  ]
+}
