@@ -1,0 +1,27 @@
+[project]
+name = "localbox-tool"
+version = "0.1.0"
+description = "LAN page that saves dropped images and videos into a tagged folder (default: ComfyUI input)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "mcp>=1.2,<2",
+    "python-dotenv",
+    "python-multipart",
+]
+
+[dependency-groups]
+dev = ["pytest", "httpx"]
+
+[project.scripts]
+localbox-api = "localbox_tool.api:main"
+localbox-mcp = "localbox_tool.mcp_server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/localbox_tool"]

@@ -81,7 +81,7 @@ Thin client over a vendor service; no model weights, no upstream code.
 - Bump an upstream deliberately: `git -C <upstream> fetch && git -C <upstream> checkout <new-ref>`, test, then commit the new submodule pointer and update the pin in the tool README.
 - Never commit: `.env`, `.venv/`, `models/`, `outputs/` (all gitignored). Commit `uv.lock`.
 - Secret scanning: a Gitleaks pre-commit hook (`.pre-commit-config.yaml`, rules in `.gitleaks.toml`) blocks commits containing secrets. Per clone: `uv tool install pre-commit && pre-commit install --install-hooks`. Run all hooks with `pre-commit run --all-files`. If a finding is a false positive, allowlist it in `.gitleaks.toml` (never bypass with `--no-verify`); if it is real, rotate the key.
-- Linting: Ruff runs as a pre-commit hook (config in `ruff.toml`, rules E/F/W/I/B/UP, line length 120). Submodules (`**/upstream`) are excluded with `force-exclude`, so third-party code is never linted. Run manually with `uvx ruff check .`. Fix findings in our code; do not add per-line ignores without a reason.
+- Linting: Ruff check and Ruff format both run as pre-commit hooks (config in `ruff.toml`, rules E/F/W/I/B/UP, line length 120). Submodules (`**/upstream`) are excluded with `force-exclude`, so third-party code is never linted or formatted. Run manually with `uvx ruff check .` and `uvx ruff format .`. Fix findings in our code; do not add per-line ignores without a reason.
 - Import order caveat: anything that must run before torch/huggingface imports (env + cache dirs) belongs in the package `__init__.py`, not in an import that the sorter can reorder.
 - Commit/push only when the user asks.
 
@@ -96,7 +96,7 @@ Thin client over a vendor service; no model weights, no upstream code.
 
   _here = Path(__file__).resolve()
   _root = next(p for p in _here.parents if (p / "INSTRUCTIONS.md").exists())  # tools/
-  load_dotenv(_root / ".env")                            # shared; real env vars still win
+  load_dotenv(_root / ".env")  # shared; real env vars still win
   load_dotenv(_here.parents[2] / ".env", override=True)  # optional tool-local overrides
   ```
   A tool-local `.env`, if present, overrides the root one. Never print or log values.
