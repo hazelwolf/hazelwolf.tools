@@ -31,6 +31,16 @@ releasing the code and pretrained models. It provides the models we wrap with an
 If you use these models in research, please cite the papers above. The pretrained weights are released for
 non-commercial use (CC-BY-NC 4.0).
 
+### VoiceStudio - Palash Debnath and contributors
+
+- Repository: https://github.com/debpalash/VoiceStudio
+- Used in: `audio-gen/os/voicestudio`
+
+Thank you to Palash Debnath and the VoiceStudio contributors for an open, local-first voice studio. It gives us voice
+cloning, multilingual TTS and transcription behind one backend. Thanks also to Han Zhu and the
+[k2-fsa](https://github.com/k2-fsa/OmniVoice) team for **OmniVoice**, the default zero-shot TTS model, and to the
+WhisperX, faster-whisper, MLX and sherpa-onnx projects it builds on.
+
 <!-- Add one section per new submodule: name, repo URL, where it is used, what it gives us, thanks. -->
 
 ## Libraries and tools we depend on
