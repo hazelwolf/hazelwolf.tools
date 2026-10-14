@@ -1,0 +1,94 @@
+{
+  "info": {
+    "name": "VoiceStudio",
+    "description": "Voice cloning, TTS (646 languages) and transcription via the local VoiceStudio backend. Start `voicestudio-backend` and `voicestudio-api` first.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{apiKey}}", "type": "string"}]
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://127.0.0.1:8103"},
+    {"key": "profileId", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/health",
+        "description": "Wrapper status plus backend readiness and device."}
+    },
+    {
+      "name": "List voices",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/voices"}
+    },
+    {
+      "name": "List personalities",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/personalities"}
+    },
+    {
+      "name": "Clone voice",
+      "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+        "const b = pm.response.json(); if (b.profile_id) pm.collectionVariables.set('profileId', b.profile_id);"
+      ]}}],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {"key": "name", "value": "My voice", "type": "text"},
+            {"key": "ref_audio", "type": "file", "src": "", "description": "5-30 s of clean single-speaker speech"},
+            {"key": "ref_text", "value": "", "type": "text", "disabled": true},
+            {"key": "language", "value": "Auto", "type": "text"}
+          ]
+        },
+        "url": "{{baseUrl}}/voices/clone",
+        "description": "Saves a voice profile; stores its id in {{profileId}}."
+      }
+    },
+    {
+      "name": "Generate speech",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"text\": \"Hello from VoiceStudio.\",\n  \"language\": \"en\",\n  \"instruct\": \"narrator\",\n  \"speed\": 1.0,\n  \"output_name\": \"hello\"\n}"},
+        "url": "{{baseUrl}}/generate",
+        "description": "Writes a WAV to outputs/ and returns its path and download url. First call downloads the model (~2.3 GB)."
+      }
+    },
+    {
+      "name": "Generate speech with saved voice",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"text\": \"This is my cloned voice.\",\n  \"profile_id\": \"{{profileId}}\",\n  \"language\": \"Auto\"\n}"},
+        "url": "{{baseUrl}}/generate"
+      }
+    },
+    {
+      "name": "Download output",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/files/hello.wav"}
+    },
+    {
+      "name": "Transcribe",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {"key": "audio", "type": "file", "src": ""},
+            {"key": "mode", "value": "fast", "type": "text"},
+            {"key": "language", "value": "", "type": "text", "disabled": true}
+          ]
+        },
+        "url": "{{baseUrl}}/transcribe"
+      }
+    },
+    {
+      "name": "Delete voice",
+      "request": {"method": "DELETE", "header": [], "url": "{{baseUrl}}/voices/{{profileId}}"}
+    }
+  ]
+}
