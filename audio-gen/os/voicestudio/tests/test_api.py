@@ -1,5 +1,7 @@
 """Wrapper tests against a mocked upstream backend (no models, no running server)."""
 
+import threading
+
 import httpx
 import pytest
 from fastapi.testclient import TestClient
@@ -74,6 +76,44 @@ def test_clone_and_transcribe(http):
     assert http.post("/voices/clone", data={"name": "Me"}, files=files).json()["profile_id"] == "p2"
     r = http.post("/transcribe", files={"audio": ("a.wav", WAV, "audio/wav")})
     assert r.json()["text"] == "hello"
+
+
+def test_upload_routes_do_not_stall_health(http, monkeypatch):
+    """A slow clone or transcribe must not block the event loop (and /health)."""
+    started = threading.Event()
+    release = threading.Event()
+
+    def slow(*_args, **_kwargs):
+        started.set()
+        assert release.wait(2)
+        return {"profile_id": "p2", "name": "Me", "kind": "clone"}
+
+    monkeypatch.setattr(core, "clone_voice_bytes", slow)
+    result = {}
+
+    def do_clone():
+        files = {"ref_audio": ("me.wav", WAV, "audio/wav")}
+        result["resp"] = http.post("/voices/clone", data={"name": "Me"}, files=files)
+
+    worker = threading.Thread(target=do_clone)
+    worker.start()
+    assert started.wait(2)
+    health: dict = {}
+
+    def do_health():
+        health["resp"] = http.get("/health")
+
+    health_thread = threading.Thread(target=do_health)
+    health_thread.start()
+    health_thread.join(1)
+    stalled = health_thread.is_alive()
+    release.set()
+    health_thread.join(2)
+    worker.join(2)
+    assert not stalled
+    assert health["resp"].status_code == 200
+    assert health["resp"].json()["status"] == "ok"
+    assert result["resp"].status_code == 200
 
 
 def test_backend_errors_pass_through(http):
