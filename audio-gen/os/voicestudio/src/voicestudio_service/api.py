@@ -46,6 +46,22 @@ def _with_url(res: dict, request: Request) -> dict:
     return res
 
 
+async def _read_upload(upload: UploadFile, what: str) -> bytes:
+    """Read an upload without allocating more than the configured limit.
+
+    ``size`` is checked first so a known oversized part is rejected before it is
+    copied into memory. The read itself is capped at the limit plus one byte,
+    which is enough to tell an over-limit body from an acceptable one.
+    """
+    limit = config.MAX_UPLOAD_MB * 1024 * 1024
+    if upload.size is not None and upload.size > limit:
+        raise core.ServiceError(f"{what} exceeds {config.MAX_UPLOAD_MB} MB")
+    raw = await upload.read(limit + 1)
+    if len(raw) > limit:
+        raise core.ServiceError(f"{what} exceeds {config.MAX_UPLOAD_MB} MB")
+    return raw
+
+
 @app.get("/health", tags=["meta"])
 def health():
     return core.health()
@@ -69,9 +85,7 @@ async def clone_voice(
     language: str = Form("Auto"),
     instruct: str = Form(""),
 ):
-    raw = await ref_audio.read()
-    if len(raw) > config.MAX_UPLOAD_MB * 1024 * 1024:
-        raise core.ServiceError(f"Reference audio exceeds {config.MAX_UPLOAD_MB} MB")
+    raw = await _read_upload(ref_audio, "Reference audio")
     # Cloning can wait on the backend or a first-use model download. Keep that off
     # the event loop so other routes, including /health, stay responsive.
     return await anyio.to_thread.run_sync(
@@ -95,9 +109,7 @@ async def transcribe(
     language: str | None = Form(None),
     mode: str | None = Form(None, description="fast (default), accurate or reference"),
 ):
-    raw = await audio.read()
-    if len(raw) > config.MAX_UPLOAD_MB * 1024 * 1024:
-        raise core.ServiceError(f"Audio exceeds {config.MAX_UPLOAD_MB} MB")
+    raw = await _read_upload(audio, "Audio")
     return await anyio.to_thread.run_sync(
         core.transcribe_bytes, audio.filename or "audio.wav", raw, language, mode
     )
