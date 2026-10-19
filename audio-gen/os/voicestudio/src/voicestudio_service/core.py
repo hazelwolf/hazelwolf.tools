@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import time
 import uuid
@@ -71,15 +72,36 @@ def _read_audio(path: str) -> tuple[str, bytes]:
     return p.name, p.read_bytes()
 
 
-def _output_path(name: str | None) -> Path:
+def _write_output(name: str | None, content: bytes) -> Path:
+    """Write audio to a new file under OUTPUT_DIR.
+
+    The free name is reserved with O_CREAT|O_EXCL, then written. Checking
+    existence and writing later lets two API or MCP processes pick the same
+    path and overwrite each other. An existing name is retried as -2, -3, ...
+    """
     stem = re.sub(r"[^A-Za-z0-9._-]+", "-", name or "").strip("-.")[:80]
     stem = stem or f"speech-{time.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:6]}"
-    out = config.OUTPUT_DIR / f"{Path(stem).stem}.wav"
-    n = 2
-    while out.exists():
-        out = config.OUTPUT_DIR / f"{Path(stem).stem}-{n}.wav"
-        n += 1
-    return out
+    base = Path(stem).stem or f"speech-{uuid.uuid4().hex[:6]}"
+    flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
+    if hasattr(os, "O_BINARY"):
+        flags |= os.O_BINARY
+    suffix = 0
+    for _ in range(10_000):
+        filename = f"{base}.wav" if suffix == 0 else f"{base}-{suffix}.wav"
+        out = config.OUTPUT_DIR / filename
+        try:
+            fd = os.open(out, flags, 0o644)
+        except FileExistsError:
+            suffix = 2 if suffix == 0 else suffix + 1
+            continue
+        try:
+            with os.fdopen(fd, "wb") as fh:
+                fh.write(content)
+        except Exception:
+            out.unlink(missing_ok=True)
+            raise
+        return out
+    raise ServiceError("could not allocate a unique output filename", status=500)
 
 
 def _num(raw: str | None):
@@ -157,8 +179,7 @@ def generate(
         fname, raw = _read_audio(ref_audio_path)
         files = {"ref_audio": (fname, raw, "application/octet-stream")}
     r = _request("POST", "/generate", data=form, files=files, timeout=config.TIMEOUT_S)
-    out = _output_path(output_name)
-    out.write_bytes(r.content)
+    out = _write_output(output_name, r.content)
     return {
         "path": str(out),
         "name": out.name,
