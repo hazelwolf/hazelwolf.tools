@@ -1,5 +1,6 @@
 """Wrapper tests against a mocked upstream backend (no models, no running server)."""
 
+import asyncio
 import threading
 
 import httpx
@@ -106,6 +107,53 @@ def test_parallel_outputs_do_not_overwrite(tmp_path, monkeypatch):
 def test_generate_validation(http):
     assert http.post("/generate", json={"text": "hi", "speed": 3}).status_code == 422
     assert http.post("/generate", json={"text": "   "}).status_code == 400
+
+
+def test_known_oversized_upload_is_not_read(monkeypatch):
+    monkeypatch.setattr(config, "MAX_UPLOAD_MB", 1)
+
+    class Upload:
+        def __init__(self):
+            self.size = 1024 * 1024 + 1
+            self.reads = 0
+
+        async def read(self, n=-1):
+            self.reads += 1
+            raise AssertionError(f"read({n}) should not be called")
+
+    upload = Upload()
+    with pytest.raises(core.ServiceError, match="exceeds 1 MB"):
+        asyncio.run(api._read_upload(upload, "Audio"))
+    assert upload.reads == 0
+
+
+def test_upload_read_stops_one_byte_past_the_limit(monkeypatch):
+    monkeypatch.setattr(config, "MAX_UPLOAD_MB", 1)
+    limit = 1024 * 1024
+
+    class Upload:
+        def __init__(self):
+            self.size = None
+            self.requested = None
+
+        async def read(self, n=-1):
+            self.requested = n
+            return b"x" * (n if n >= 0 else limit + 100)
+
+    upload = Upload()
+    with pytest.raises(core.ServiceError, match="exceeds 1 MB"):
+        asyncio.run(api._read_upload(upload, "Reference audio"))
+    assert upload.requested == limit + 1
+
+
+def test_http_rejects_oversized_uploads(http, monkeypatch):
+    monkeypatch.setattr(config, "MAX_UPLOAD_MB", 0)
+    clone = http.post("/voices/clone", data={"name": "Me"}, files={"ref_audio": ("me.wav", WAV, "audio/wav")})
+    assert clone.status_code == 400
+    assert clone.json()["error"] == "Reference audio exceeds 0 MB"
+    transcribe = http.post("/transcribe", files={"audio": ("a.wav", WAV, "audio/wav")})
+    assert transcribe.status_code == 400
+    assert transcribe.json()["error"] == "Audio exceeds 0 MB"
 
 
 def test_clone_and_transcribe(http):
