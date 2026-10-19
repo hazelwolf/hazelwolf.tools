@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import anyio
 import uvicorn
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
@@ -71,7 +72,11 @@ async def clone_voice(
     raw = await ref_audio.read()
     if len(raw) > config.MAX_UPLOAD_MB * 1024 * 1024:
         raise core.ServiceError(f"Reference audio exceeds {config.MAX_UPLOAD_MB} MB")
-    return core.clone_voice_bytes(name, ref_audio.filename or "ref.wav", raw, ref_text, language, instruct)
+    # Cloning can wait on the backend or a first-use model download. Keep that off
+    # the event loop so other routes, including /health, stay responsive.
+    return await anyio.to_thread.run_sync(
+        core.clone_voice_bytes, name, ref_audio.filename or "ref.wav", raw, ref_text, language, instruct
+    )
 
 
 @app.delete("/voices/{profile_id}", tags=["voices"])
@@ -93,7 +98,9 @@ async def transcribe(
     raw = await audio.read()
     if len(raw) > config.MAX_UPLOAD_MB * 1024 * 1024:
         raise core.ServiceError(f"Audio exceeds {config.MAX_UPLOAD_MB} MB")
-    return core.transcribe_bytes(audio.filename or "audio.wav", raw, language, mode)
+    return await anyio.to_thread.run_sync(
+        core.transcribe_bytes, audio.filename or "audio.wav", raw, language, mode
+    )
 
 
 @app.get("/files/{name}", tags=["speech"])
