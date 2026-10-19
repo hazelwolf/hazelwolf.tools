@@ -66,6 +66,43 @@ def test_generate_writes_wav_and_serves_it(http, tmp_path):
     assert http.post("/generate", json={"text": "hello there", "output_name": "greet"}).json()["name"] == "greet-2.wav"
 
 
+def test_existing_output_is_not_overwritten(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "OUTPUT_DIR", tmp_path)
+    (tmp_path / "greet.wav").write_bytes(b"original")
+    path = core._write_output("greet", b"new")
+    assert path.name == "greet-2.wav"
+    assert (tmp_path / "greet.wav").read_bytes() == b"original"
+    assert path.read_bytes() == b"new"
+
+
+def test_parallel_outputs_do_not_overwrite(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "OUTPUT_DIR", tmp_path)
+    barrier = threading.Barrier(8)
+    found: list[tuple[str, bytes]] = []
+    lock = threading.Lock()
+
+    def write(i: int):
+        payload = f"audio-{i}".encode()
+        barrier.wait(2)
+        path = core._write_output("greet", payload)
+        with lock:
+            found.append((path.name, payload))
+
+    threads = [threading.Thread(target=write, args=(i,)) for i in range(8)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(5)
+        assert not thread.is_alive()
+    names = [name for name, _ in found]
+    assert len(names) == len(set(names)) == 8
+    assert "greet.wav" in names
+    assert "greet-2.wav" in names
+    assert "greet-1.wav" not in names
+    for name, payload in found:
+        assert (tmp_path / name).read_bytes() == payload
+
+
 def test_generate_validation(http):
     assert http.post("/generate", json={"text": "hi", "speed": 3}).status_code == 422
     assert http.post("/generate", json={"text": "   "}).status_code == 400
