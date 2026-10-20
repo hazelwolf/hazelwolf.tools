@@ -13,7 +13,7 @@ browser -- POST /upload (tag + file) --> api.py --> core.save_stream --> destina
 agent   -- save_file(path, tag)      --> mcp     --> core.save_path   --> destination folder
 ```
 
-Destination tags come from `LOCALBOX_DESTINATIONS` (`tag=/absolute/path`, comma-separated). When that variable is unset, the only tag is `comfy` → `../ComfyUI/input`.
+Destination tags come from `LOCALBOX_DESTINATIONS` (`tag=path`, comma-separated; relative paths resolve against the repo root). When that variable is unset, the only tag is `comfy` → `../ComfyUI/input`.
 
 ## Decisions
 

@@ -67,9 +67,14 @@ def test_save_path_copies_local_file(dest, tmp_path):
 
 
 def test_malformed_destinations(monkeypatch):
-    monkeypatch.setenv("LOCALBOX_DESTINATIONS", "comfy=relative/path")
-    with pytest.raises(core.LocalboxError, match="absolute"):
+    monkeypatch.setenv("LOCALBOX_DESTINATIONS", "comfy")
+    with pytest.raises(core.LocalboxError, match="tag=path"):
         core.destinations()
+
+
+def test_relative_destination_resolves_against_workspace(monkeypatch):
+    monkeypatch.setenv("LOCALBOX_DESTINATIONS", "comfy=../ComfyUI/input")
+    assert core.destinations()["comfy"] == (core.workspace_root() / "../ComfyUI/input").resolve()
 
 
 class _bytes:

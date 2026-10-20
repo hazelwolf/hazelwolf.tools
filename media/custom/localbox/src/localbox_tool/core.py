@@ -19,6 +19,12 @@ def tool_root() -> Path:
     return _here.parents[2]
 
 
+def workspace_root() -> Path:
+    return _root
+
+
+# Relative destination paths resolve against the workspace root, so `../ComfyUI/input`
+# is a ComfyUI checkout sitting next to this repo.
 DEFAULT_COMFY = "../ComfyUI/input"
 DEFAULT_DESTINATIONS = f"comfy={DEFAULT_COMFY}"
 DEFAULT_TAG = "comfy"
@@ -73,7 +79,7 @@ def max_bytes() -> int:
 
 
 def destinations() -> dict[str, Path]:
-    """Parse LOCALBOX_DESTINATIONS (`tag=/abs/path,tag2=/other`)."""
+    """Parse LOCALBOX_DESTINATIONS (`tag=/abs/path,tag2=relative/to/workspace`)."""
     raw = os.environ.get("LOCALBOX_DESTINATIONS", DEFAULT_DESTINATIONS).strip()
     if not raw:
         raw = DEFAULT_DESTINATIONS
@@ -84,7 +90,7 @@ def destinations() -> dict[str, Path]:
             continue
         if "=" not in item:
             raise LocalboxError(
-                f"LOCALBOX_DESTINATIONS entry {item!r} must be tag=/absolute/path",
+                f"LOCALBOX_DESTINATIONS entry {item!r} must be tag=path",
                 status=500,
             )
         tag, path = item.split("=", 1)
@@ -92,12 +98,12 @@ def destinations() -> dict[str, Path]:
         path = path.strip()
         if not tag or not path:
             raise LocalboxError(
-                f"LOCALBOX_DESTINATIONS entry {item!r} must be tag=/absolute/path",
+                f"LOCALBOX_DESTINATIONS entry {item!r} must be tag=path",
                 status=500,
             )
         dest = Path(path).expanduser()
         if not dest.is_absolute():
-            raise LocalboxError(f"Destination {tag!r} path must be absolute: {path}", status=500)
+            dest = (_root / dest).resolve()
         found[tag] = dest
     if not found:
         raise LocalboxError("No destinations configured", status=500)
