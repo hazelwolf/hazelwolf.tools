@@ -103,12 +103,21 @@ Thin client over a vendor service; no model weights, no upstream code.
 - Launch configs for agents (`docs/AGENTS.md`) should not inline secrets; rely on the root `.env`, or reference it via `uv run --env-file <abs path>/tools/.env`.
 - Postman environments mirror only the variables the collection needs, with empty values.
 
+## Paths: no machine-specific paths
+
+- Never commit a path that only exists on one machine (`/Users/<name>/...`, `/home/<name>/...`, `C:\Users\<name>\...`). This covers code, tests, docs, skills, agent configs, Postman files and `.env.example`.
+- Docs, skills and `docs/AGENTS.md` write tool paths relative to the repo root (`audio-gen/os/voicestudio`) and say to run commands from there.
+- When an agent needs an absolute path (for `uv run --directory`, a file argument, or an MCP config), it builds one at run time from its cwd: `"$(git rev-parse --show-toplevel)/audio-gen/os/voicestudio"`, or `"$(pwd)/<rel path>"` from the repo root. Resolve file arguments to absolute paths before passing them to a tool. A user-level agent config outside the repo may hold the user's own absolute path, but it is never committed.
+- Code derives paths from `__file__` (the workspace root found via `INSTRUCTIONS.md`, or the tool root), never from a hardcoded location. Relative paths in env vars resolve against the workspace root.
+- Example paths in docs use placeholders such as `/path/to/ComfyUI/input` or `/abs/clip.m4a`.
+- Before committing, `git grep -nE '/Users/|/home/'` should only match placeholders.
+
 ## 1. Python environment: uv, one venv per tool
 
 - If the code is Python, use **uv**. Never use bare `pip`, `python -m venv`, or a shared/global environment.
 - Each tool folder is its own uv project with its own `.venv` (`cd <domain>/<category>/<tool> && uv init && uv sync`). Do not create one venv at the workspace root.
 - Declare dependencies with `uv add <pkg>` (dev deps: `uv add --dev <pkg>`); commit `pyproject.toml` and `uv.lock`, ignore `.venv/`.
-- Run everything through uv: `uv run python ...`, `uv run uvicorn ...`, `uv run pytest`. MCP/agent configs must launch via `uv run --directory <abs tool path> ...` so the tool's own venv is used.
+- Run everything through uv: `uv run python ...`, `uv run uvicorn ...`, `uv run pytest`. MCP/agent configs must launch via `uv run --directory <tool path> ...` so the tool's own venv is used (see Paths).
 - Pin `requires-python` in `pyproject.toml`. Use a `src/` layout.
 - Non-Python tools: use the idiomatic per-folder toolchain (e.g. `package.json` + local `node_modules`), still isolated per tool.
 
@@ -125,7 +134,7 @@ Every tool must expose its functionality two ways, both thin wrappers over the s
 **MCP server**
 - Expose each capability as an MCP tool with a clear name, description and typed input schema. Support stdio transport (default) and, where useful, streamable HTTP.
 - Document in `docs/MCP.md`: tool list with params and examples, transport, env vars, and how to test it (e.g. MCP Inspector).
-- Document in `docs/AGENTS.md`: ready-to-paste config for each agent, with absolute paths and `uv run --directory`:
+- Document in `docs/AGENTS.md`: ready-to-paste config for each agent, with repo-relative tool paths and `uv run --directory` (see Paths):
   - Claude Code: `claude mcp add <tool> -- uv run --directory <path> <entrypoint>` or `.mcp.json`
   - Cursor: `.cursor/mcp.json`
   - OpenCode: `opencode.json` (`mcp` section)
@@ -151,3 +160,4 @@ Every tool must expose its functionality two ways, both thin wrappers over the s
 - [ ] Licenses recorded: upstream URL, pinned ref, code + weights license in the tool README, and a row in `docs/legal/LICENSE-NOTES.md`
 - [ ] Acknowledgement added in `docs/ACKNOWLEDGEMENTS.md` for every new submodule and key dependency
 - [ ] Skill created, linked, and invocable as `/<tool>`
+- [ ] No machine-specific paths in anything committed (see Paths)
