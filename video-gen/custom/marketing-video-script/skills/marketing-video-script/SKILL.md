@@ -28,7 +28,7 @@ Read before drafting:
    - Tone (default: confident, warm, lightly witty), voice (brand "we" by default)
    - Proof available: real numbers, customers, footage, and their sources
    - Anything that must not be claimed (legal, unconfirmed engagements)
-   If the user supplied a brief, a deck or source docs, use them and skip the questions.
+   If the user supplied a brief, a deck or source docs, use them to answer these questions and ask only for details still missing.
 2. **Pick the arc.** Default to this: *Hook (familiar world / big number) →
    Shift (why now) → Problem (made tangible) → Pain quantified → Solution reveal →
    Capabilities (max 3) → Outcome (hero number) → Expand (what's next) → Brand sign-off.*
