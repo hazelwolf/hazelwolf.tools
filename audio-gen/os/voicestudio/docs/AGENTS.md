@@ -2,7 +2,7 @@
 
 Launch via `uv run --directory` so the tool venv is used. Secrets are not inlined; the tool reads `tools/.env`.
 
-Tool directory: `audio-gen/os/voicestudio`
+Tool directory: `audio-gen/os/voicestudio`, relative to the repo root. Run the commands below from the repo root, or swap in an absolute path if your client starts MCP servers from somewhere else.
 
 Before any agent call, start the backend (it keeps models warm):
 

@@ -10,7 +10,7 @@ description: >-
 
 Runs locally. Prefer the MCP tools (`voicestudio` server). Fall back to the HTTP API if MCP is not connected.
 
-Tool dir: `audio-gen/os/voicestudio`
+Tool dir: `audio-gen/os/voicestudio`, relative to the repo root. Run commands from there.
 
 ## 0. Make sure the backend is up
 

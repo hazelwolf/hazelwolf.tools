@@ -2,7 +2,7 @@
 
 Launch via `uv run --directory` so the tool venv is used. Secrets are not inlined; localbox reads `tools/.env`.
 
-Tool directory: `media/custom/localbox`
+Tool directory: `media/custom/localbox`, relative to the repo root. Run the commands below from the repo root, or swap in an absolute path if your client starts MCP servers from somewhere else.
 
 ## Claude Code
 
