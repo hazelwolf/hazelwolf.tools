@@ -1,6 +1,11 @@
 [submodule "audio-gen/os/audiocraft/upstream"]
 	path = audio-gen/os/audiocraft/upstream
 	url = https://github.com/facebookresearch/audiocraft.git
+
 [submodule "audio-gen/os/voicestudio/upstream"]
 	path = audio-gen/os/voicestudio/upstream
 	url = https://github.com/debpalash/VoiceStudio.git
+
+[submodule "image-gen/os/sensenova-u1/upstream"]
+	path = image-gen/os/sensenova-u1/upstream
+	url = https://github.com/OpenSenseNova/SenseNova-U1.git
