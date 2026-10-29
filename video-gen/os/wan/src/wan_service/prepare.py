@@ -10,6 +10,7 @@ uv run wan-prepare --bench    # also time an 832x480, 5 s clip (about 10+ minute
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import time
 from pathlib import Path
@@ -18,12 +19,62 @@ from . import config
 
 log = logging.getLogger("wan")
 
-# Folders the pipeline cannot run without; their presence means the package is complete.
-_REQUIRED = ("transformer/model.safetensors.index.json", "text_encoder/model.safetensors.index.json", "vae")
+# Index files for sharded components; VAE may be single-file or indexed (mlx-gen layout).
+_INDEX_PATHS = (
+    "transformer/model.safetensors.index.json",
+    "text_encoder/model.safetensors.index.json",
+)
+_VAE_DIR = "vae"
+
+
+def _shard_files(index_path: Path) -> list[Path]:
+    with index_path.open(encoding="utf-8") as handle:
+        weight_map = json.load(handle).get("weight_map")
+    if not isinstance(weight_map, dict) or not weight_map:
+        return []
+    root = index_path.parent
+    return [
+        root / name for name in sorted(set(weight_map.values())) if isinstance(name, str) and not name.startswith("._")
+    ]
+
+
+def _vae_weight_files(vae_dir: Path) -> list[Path]:
+    index = vae_dir / "model.safetensors.index.json"
+    if index.is_file():
+        return _shard_files(index)
+    return sorted(p for p in vae_dir.glob("*.safetensors") if not p.name.startswith("._"))
+
+
+def _safetensors_usable(path: Path, *, min_bytes: int = 64) -> bool:
+    """True when the file exists, is non-trivially sized, and parses as safetensors with tensors."""
+    if not path.is_file() or path.stat().st_size < min_bytes:
+        return False
+    try:
+        from safetensors import safe_open
+
+        with safe_open(str(path), framework="numpy") as handle:
+            return len(handle.keys()) > 0
+    except Exception:  # noqa: BLE001 - corrupt or truncated downloads fail readiness
+        return False
 
 
 def _complete(path: Path) -> bool:
-    return all((path / f).exists() for f in _REQUIRED)
+    if not path.is_dir():
+        return False
+    for rel in _INDEX_PATHS:
+        index = path / rel
+        if not index.is_file():
+            return False
+        for shard in _shard_files(index):
+            if not _safetensors_usable(shard):
+                return False
+    vae_dir = path / _VAE_DIR
+    if not vae_dir.is_dir():
+        return False
+    vae_files = _vae_weight_files(vae_dir)
+    if not vae_files:
+        return False
+    return all(_safetensors_usable(p) for p in vae_files)
 
 
 def local_pack() -> Path | None:
@@ -59,7 +110,9 @@ def ensure_weights() -> Path:
     if path is not None:
         return path
     if config.MODEL_PATH is not None:
-        raise FileNotFoundError(f"WAN_MODEL_PATH {config.MODEL_PATH} is missing: {', '.join(_REQUIRED)}")
+        raise FileNotFoundError(
+            f"WAN_MODEL_PATH {config.MODEL_PATH} is incomplete: need index shards and VAE weights under {_VAE_DIR!r}"
+        )
     with FileLock(str(config.MODELS_DIR / ".prepare.lock")):
         path = local_pack()
         if path is not None:
@@ -68,6 +121,8 @@ def ensure_weights() -> Path:
         t0 = time.perf_counter()
         path = Path(snapshot_download(config.HF_REPO, revision=config.HF_REVISION, ignore_patterns=config.HF_IGNORE))
         log.warning("Weights ready in %.0fs", time.perf_counter() - t0)
+    if not _complete(path):
+        raise FileNotFoundError(f"Downloaded package at {path} is incomplete; re-run wan-prepare")
     return path
 
 

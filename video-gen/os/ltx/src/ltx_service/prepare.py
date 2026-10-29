@@ -21,18 +21,62 @@ from . import config
 
 log = logging.getLogger("ltx")
 
-# Files the distilled pipeline cannot run without; their presence means the pack is complete.
-_REQUIRED = ("transformer-distilled.safetensors", "text_encoder.safetensors", "spatial_upscaler_x2_v1_0.safetensors")
+# Distilled pipeline anchors; decode/audio files depend on pack generation (2.5 conv VAE vs 2.3).
+_LTX25_DECODE = (
+    "vae_decoder_conv.safetensors",
+    "vae_encoder_conv.safetensors",
+    "vae_decoder_av.safetensors",
+    "audio_vae.safetensors",
+    "vocoder.safetensors",
+)
+_LTX23_DECODE = (
+    "vae_decoder.safetensors",
+    "vae_encoder.safetensors",
+    "audio_vae.safetensors",
+    "vocoder.safetensors",
+)
 
 
 class WeightsUnavailable(RuntimeError):
     """The gated pack could not be downloaded (no token, or license not accepted)."""
 
 
+def _safetensors_usable(path: Path, *, min_bytes: int = 64) -> bool:
+    if not path.is_file() or path.stat().st_size < min_bytes:
+        return False
+    try:
+        from safetensors import safe_open
+
+        with safe_open(str(path), framework="numpy") as handle:
+            return len(handle.keys()) > 0
+    except Exception:  # noqa: BLE001 - corrupt or truncated downloads fail readiness
+        return False
+
+
+def _required_files(path: Path) -> tuple[str, ...]:
+    upscaler = "spatial_upscaler_x2_v1_0.safetensors"
+    if not (path / upscaler).is_file():
+        alts = sorted(path.glob("spatial_upscaler*.safetensors"))
+        if alts:
+            upscaler = alts[0].name
+    core = ("transformer-distilled.safetensors", "text_encoder.safetensors", upscaler)
+    if (path / "vae_decoder_conv.safetensors").is_file():
+        return core + _LTX25_DECODE
+    if (path / "vae_decoder.safetensors").is_file():
+        return core + _LTX23_DECODE
+    return core + _LTX25_DECODE
+
+
+def _complete(path: Path) -> bool:
+    if not path.is_dir():
+        return False
+    return all(_safetensors_usable(path / name) for name in _required_files(path))
+
+
 def local_pack() -> Path | None:
     """The pack directory if it is fully on disk, else None. Never touches the network."""
     if config.MODEL_PATH is not None:
-        return config.MODEL_PATH if all((config.MODEL_PATH / f).exists() for f in _REQUIRED) else None
+        return config.MODEL_PATH if _complete(config.MODEL_PATH) else None
     from huggingface_hub import snapshot_download
 
     dl_kw: dict = {"ignore_patterns": config.HF_IGNORE, "local_files_only": True}
@@ -42,7 +86,7 @@ def local_pack() -> Path | None:
         path = Path(snapshot_download(config.HF_REPO, **dl_kw))
     except Exception:  # noqa: BLE001 - any cache miss means "not downloaded"
         return None
-    return path if all((path / f).exists() for f in _REQUIRED) else None
+    return path if _complete(path) else None
 
 
 def weights_ready() -> bool:
@@ -63,7 +107,8 @@ def ensure_weights() -> Path:
     if path is not None:
         return path
     if config.MODEL_PATH is not None:
-        raise WeightsUnavailable(f"LTX_MODEL_PATH {config.MODEL_PATH} is missing files: {', '.join(_REQUIRED)}")
+        missing = [f for f in _required_files(config.MODEL_PATH) if not _safetensors_usable(config.MODEL_PATH / f)]
+        raise WeightsUnavailable(f"LTX_MODEL_PATH {config.MODEL_PATH} is missing or incomplete: {', '.join(missing)}")
     with FileLock(str(config.MODELS_DIR / ".prepare.lock")):
         path = local_pack()
         if path is not None:
@@ -82,6 +127,8 @@ def ensure_weights() -> Path:
                 f"tools/.env (or run `hf auth login`). ({type(e).__name__})"
             ) from None
         log.warning("Weights ready in %.0fs", time.perf_counter() - t0)
+    if not _complete(path):
+        raise WeightsUnavailable(f"Downloaded pack at {path} is incomplete; re-run ltx-prepare")
     return path
 
 
