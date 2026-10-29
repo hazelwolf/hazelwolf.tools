@@ -1,0 +1,41 @@
+[project]
+name = "wan-service"
+version = "0.1.0"
+description = "API + MCP wrapper around Wan 2.2 TI2V-5B (Alibaba) text/image-to-video, running natively on Apple Silicon via mlx-gen (MLX)"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "mlx-gen",
+    "fastapi>=0.115,<0.137",
+    "uvicorn[standard]>=0.30",
+    "mcp>=1.28.1,<2",
+    "python-dotenv",
+    "python-multipart",
+    "filelock",
+]
+
+[dependency-groups]
+dev = ["pytest", "httpx>=0.28.1"]
+
+[project.scripts]
+wan-prepare = "wan_service.prepare:main"
+wan-api = "wan_service.api:main"
+wan-mcp = "wan_service.mcp_server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wan_service"]
+
+[tool.uv.sources]
+mlx-gen = { path = "upstream", editable = true }
+
+# Upstream's lock does not apply to a path dependency. Pillow 13 imports numbers._IntegralLike, which this
+# CPython does not have, so hold it at upstream's locked 12.x.
+[tool.uv]
+constraint-dependencies = ["pillow>=12.1.1,<13"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

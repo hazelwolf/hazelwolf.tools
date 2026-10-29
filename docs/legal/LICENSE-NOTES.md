@@ -11,6 +11,10 @@ terms. Check each upstream project for the authoritative text before relying on 
 | audio-gen/os/voicestudio | https://github.com/debpalash/VoiceStudio | AGPL-3.0-only (`upstream/LICENSE`); bundled `omnivoice/` Apache-2.0 | Default `k2-fsa/OmniVoice`: **CC-BY-NC - non-commercial only**; other engines vary |
 | creative/os/creative-workflows | https://github.com/Comfy-Org/ComfyUI | GPL-3.0 (`upstream/LICENSE`) | Not shipped here. Each file under `models/` keeps its own license |
 
+| image-gen/os/zimage | https://github.com/filipstrand/mflux | MIT (`upstream/LICENSE`) | `Tongyi-MAI/Z-Image-Turbo`: Apache-2.0 (commercial use allowed) |
+| video-gen/os/ltx | https://github.com/dgrauet/ltx-2-mlx | MIT (`upstream/LICENSE`) | LTX-2.5: **LTX-2.x Community License** - free under $10M annual revenue, paid license above (gated) |
+| video-gen/os/wan | https://github.com/lpalbou/mlx-gen | MIT (`upstream/LICENSE`) | `Wan-AI/Wan2.2-TI2V-5B` (8-bit package by AbstractFramework): Apache-2.0 (commercial use allowed) |
+
 Submodules are referenced, not copied: this repo stores only a pinned commit pointer. Our wrapper code
 (`src/`, docs, skills) is Apache 2.0; it does not change the upstream's license.
 
@@ -26,6 +30,12 @@ not grant you rights to the weights.
 The VoiceStudio application is AGPL-3.0: commercial use is allowed, but a modified version offered over a network
 must publish its source. We do not modify it; our wrapper talks to it over HTTP. The default OmniVoice weights are
 CC-BY-NC. See `audio-gen/os/voicestudio/LICENSE-NOTES.md`.
+
+### LTX-2.5 (revenue-limited weights)
+
+The ltx-2-mlx port is MIT, but the LTX-2.5 weights are under Lightricks' LTX-2.x Community License: entities with
+$10M or more in annual revenue need a paid commercial agreement. The packs are gated, so each user accepts the
+license on Hugging Face. See `video-gen/os/ltx/LICENSE-NOTES.md`.
 
 ## Third-party paid APIs (`<domain>/third-party/<tool>`)
 

@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Run hazelwolf.tools from any directory. The workspace root is found from this script's real location,
+# so it keeps working when the skill folder is symlinked into ~/.claude/skills.
+#
+#   hw list                      tools: name, folder, description
+#   hw dir <tool>                absolute folder of a tool
+#   hw skill <tool>              absolute path of the tool's SKILL.md
+#   hw <tool> <cmd> [args...]    uv run --directory <tool dir> <tool>-<cmd> (e.g. hw zimage api)
+#   hw install                   link this skill into ~/.claude/skills and register every tool's MCP server (user scope)
+set -euo pipefail
+
+here="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+root="$(cd "$here/../.." && pwd)"
+
+tool_dirs() {
+  # A tool is <domain>/<category>/<tool>/ with skills/<tool>/SKILL.md (see INSTRUCTIONS.md).
+  for skill in "$root"/*/*/*/skills/*/SKILL.md; do
+    [ -f "$skill" ] || continue
+    local dir name
+    dir="$(cd "$(dirname "$skill")/../.." && pwd)"
+    name="$(basename "$(dirname "$skill")")"
+    [ "$name" = "$(basename "$dir")" ] && printf '%s\t%s\n' "$name" "$dir"
+  done
+}
+
+dir_of() {
+  local d
+  d="$(tool_dirs | awk -F'\t' -v t="$1" '$1 == t { print $2 }')"
+  [ -n "$d" ] || { echo "hw: unknown tool '$1' (try: hw list)" >&2; exit 1; }
+  echo "$d"
+}
+
+has_script() { grep -q "^$2 *=" "$1/pyproject.toml" 2>/dev/null; }
+
+cmd="${1:-list}"
+case "$cmd" in
+  list)
+    tool_dirs | while IFS=$'\t' read -r name dir; do
+      desc="$(awk '/^description:/{f=1; sub(/^description: *(>-)? */, ""); if ($0 != "") print; next}
+                   f && /^[a-z_]+:|^---/{exit} f{sub(/^ +/, ""); print}' "$dir/skills/$name/SKILL.md" | tr '\n' ' ')"
+      printf '%s\t%s\n  %s\n' "$name" "${dir#"$root"/}" "$desc"
+    done
+    ;;
+  dir) dir_of "${2:?usage: hw dir <tool>}" ;;
+  skill) echo "$(dir_of "${2:?usage: hw skill <tool>}")/skills/$2/SKILL.md" ;;
+  install)
+    mkdir -p "$HOME/.claude/skills"
+    ln -sfn "$here" "$HOME/.claude/skills/hazelwolf"
+    echo "linked ~/.claude/skills/hazelwolf -> $here"
+    tool_dirs | while IFS=$'\t' read -r name dir; do
+      has_script "$dir" "$name-mcp" || continue
+      claude mcp remove -s user "$name" >/dev/null 2>&1 || true
+      claude mcp add -s user "$name" -- uv run --directory "$dir" "$name-mcp"
+    done
+    ;;
+  *)
+    tool="$cmd"
+    sub="${2:?usage: hw <tool> <cmd> [args...]}"
+    shift 2
+    dir="$(dir_of "$tool")"
+    has_script "$dir" "$tool-$sub" || { echo "hw: $tool has no '$tool-$sub' entrypoint" >&2; exit 1; }
+    exec uv run --directory "$dir" "$tool-$sub" "$@"
+    ;;
+esac

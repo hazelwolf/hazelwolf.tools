@@ -14,6 +14,15 @@ image-gen/{os,custom,third-party}   creative/{os,custom,third-party}
 git clone --recurse-submodules <repo-url>
 ```
 
+## Use from any project
+
+```bash
+skills/hazelwolf/hw install
+```
+
+Links the `hazelwolf` skill into `~/.claude/skills` and registers every tool's MCP server at Claude Code user scope.
+`skills/hazelwolf/hw list` shows the tools; `hw <tool> api` starts a tool's HTTP API from any directory.
+
 ## Thanks
 
 These tools stand on the work of the open-source community. Heartfelt thanks to every maintainer and contributor.

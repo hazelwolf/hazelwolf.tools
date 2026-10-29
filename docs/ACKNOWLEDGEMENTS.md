@@ -48,6 +48,36 @@ WhisperX, faster-whisper, MLX and sherpa-onnx projects it builds on.
 
 Thank you to comfyanonymous and the ComfyUI contributors for the node-based creative workflow host. The code is GPL-3.0. We pin it as a submodule and keep models and workflows beside that checkout.
 
+### mflux - Filip Strand and contributors
+
+- Repository: https://github.com/filipstrand/mflux
+- Used in: `image-gen/os/zimage`
+
+Thank you to Filip Strand and the mflux contributors for native MLX implementations of modern image models, which
+let Z-Image-Turbo run fast on Apple Silicon. Thanks also to Tongyi Lab (Alibaba) for **Z-Image-Turbo**
+(*Z-Image: An Efficient Image Generation Foundation Model with Single-Stream Diffusion Transformer*, 2025) and for
+releasing the weights under Apache-2.0, and to Apple's [MLX](https://github.com/ml-explore/mlx) team.
+
+### ltx-2-mlx - dgrauet and contributors
+
+- Repository: https://github.com/dgrauet/ltx-2-mlx
+- Used in: `video-gen/os/ltx`
+
+Thank you to dgrauet and the ltx-2-mlx contributors for a careful, well-documented MLX port of LTX-2, which brings
+video-with-audio generation to Apple Silicon. Thanks also to [Lightricks](https://github.com/Lightricks/LTX-2) for
+**LTX-2** and **LTX-2.5** and for releasing the code and weights openly, and to Google DeepMind for the Gemma text
+encoder they build on.
+
+### mlx-gen - lpalbou, AbstractVision and contributors
+
+- Repository: https://github.com/lpalbou/mlx-gen
+- Used in: `video-gen/os/wan`
+
+Thank you to lpalbou and the mlx-gen contributors for a broad, carefully benchmarked MLX runtime, built on Filip
+Strand's mflux, that brings Wan video generation to Apple Silicon. Thanks also to the Wan team at Alibaba for
+**Wan 2.2** (*Wan: Open and Advanced Large-Scale Video Generative Models*, 2025) and for releasing it under
+Apache-2.0, and to Google for the UMT5 text encoder it builds on.
+
 <!-- Add one section per new submodule: name, repo URL, where it is used, what it gives us, thanks. -->
 
 ## Libraries and tools we depend on

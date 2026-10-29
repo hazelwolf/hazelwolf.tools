@@ -1,0 +1,63 @@
+{
+  "info": {
+    "name": "LTX Video",
+    "description": "Local text/image-to-video with audio using LTX-2.5 on Apple Silicon (ltx-2-mlx). Start `ltx-api` first. Generation takes minutes: raise Postman's request timeout (Settings > General) or set it to 0.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{apiKey}}", "type": "string"}]
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://127.0.0.1:8140"},
+    {"key": "videoName", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/health",
+        "description": "Whether the gated pack is downloaded, whether HF_TOKEN is set, and whether the pipeline is loaded."}
+    },
+    {
+      "name": "Generate video",
+      "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+        "const b = pm.response.json(); if (b.name) pm.collectionVariables.set('videoName', b.name);"
+      ]}}],
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"prompt\": \"Waves roll onto a quiet beach at golden hour, slow pan right, gulls calling and soft surf\",\n  \"width\": 768,\n  \"height\": 512,\n  \"duration_s\": 4,\n  \"fps\": 24,\n  \"seed\": 42,\n  \"output_name\": \"beach\"\n}"},
+        "url": "{{baseUrl}}/generate",
+        "description": "Writes an MP4 (video + audio) to outputs/ and returns its path and download url. Stores the name in {{videoName}}."
+      }
+    },
+    {
+      "name": "Image to video",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {"key": "prompt", "value": "the camera slowly pushes in as she smiles, soft morning birdsong", "type": "text"},
+            {"key": "image", "type": "file", "src": "", "description": "First frame (png/jpg/webp)"},
+            {"key": "width", "value": "768", "type": "text"},
+            {"key": "height", "value": "512", "type": "text"},
+            {"key": "duration_s", "value": "4", "type": "text"},
+            {"key": "seed", "value": "", "type": "text", "disabled": true}
+          ]
+        },
+        "url": "{{baseUrl}}/img2video"
+      }
+    },
+    {
+      "name": "Download video",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/files/{{videoName}}"}
+    },
+    {
+      "name": "Unload model",
+      "request": {"method": "POST", "header": [], "url": "{{baseUrl}}/unload",
+        "description": "Frees the pipeline's memory now."}
+    }
+  ]
+}
