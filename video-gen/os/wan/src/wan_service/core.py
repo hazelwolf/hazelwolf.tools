@@ -292,6 +292,12 @@ def _work_loop():
 
 
 def _ensure_worker():
+    """Start the single worker. Caller holds _jobs_lock.
+
+    The check and start must sit in the same critical section as the queue insert. Otherwise two
+    first requests can each pass the `_worker is None` check, pull different jobs, and compete for
+    `_model_lock` — clips run out of order, and a job shows "running" while it waits for the GPU.
+    """
     global _worker
     if _worker is None or not _worker.is_alive():
         _worker = threading.Thread(target=_work_loop, name="wan-worker", daemon=True)
@@ -328,8 +334,8 @@ def submit(cleanup_path: str | None = None, **params) -> dict:
                 break
             _jobs.pop(oldest)
         position = sum(1 for j in _jobs.values() if j["status"] in ("queued", "running")) - 1
-    _ensure_worker()
-    _queue.put(job_id)
+        _ensure_worker()
+        _queue.put(job_id)
     return {**_public(job), "queue_position": position}
 
 

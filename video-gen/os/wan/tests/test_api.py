@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import threading
+import time
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -106,6 +107,67 @@ def test_progress_is_visible_while_running(client, fake):
     fake.gate.set()
     done = client.get(f"/jobs/{job_id}", params={"wait_s": 10}).json()
     assert done["status"] == "done" and done["phase"] == "done" and done["step"] == done["total_steps"] == 25
+
+
+def test_concurrent_first_submits_share_one_worker_and_keep_order(fake, monkeypatch):
+    """Two requests arriving before the worker exists must not start a second one or reorder clips."""
+    import queue as queue_mod
+
+    fake.gate.clear()
+    created = []
+
+    class SlowStartThread(threading.Thread):
+        def __init__(self, *args, **kwargs):
+            # Widen the gap between the `_worker is None` check and the assignment.
+            time.sleep(0.05)
+            super().__init__(*args, **kwargs)
+            created.append(self)
+
+    monkeypatch.setattr(core.threading, "Thread", SlowStartThread)
+    # A worker left by an earlier test is blocked inside the previous queue's get().
+    # Swapping the queue keeps it from stealing these jobs; monkeypatch restores both.
+    monkeypatch.setattr(core, "_queue", queue_mod.Queue())
+    monkeypatch.setattr(core, "_worker", None)
+
+    n = 8
+    barrier = threading.Barrier(n)
+    submitted: list[dict] = []
+    submit_lock = threading.Lock()
+
+    def go(i: int):
+        barrier.wait()
+        job = core.submit(prompt=f"clip-{i}", width=832, height=480, duration_s=0.5, steps=4)
+        with submit_lock:
+            submitted.append(job)
+
+    threads = [threading.Thread(target=go, args=(i,)) for i in range(n)]
+    try:
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        # queue_position is taken under the same lock as the insert, so it is the run order.
+        submitted.sort(key=lambda job: job["queue_position"])
+        assert [t.name for t in created if t.name == "wan-worker"] == ["wan-worker"]
+        deadline = time.monotonic() + 2
+        while time.monotonic() < deadline:
+            states = [core.get_job(job["job_id"])["status"] for job in submitted]
+            if states.count("running") == 1 and states.count("queued") == n - 1:
+                break
+            time.sleep(0.01)
+        else:
+            raise AssertionError(states)
+
+        fake.gate.set()
+        for job in submitted:
+            done = core.get_job(job["job_id"], wait_s=10)
+            assert done["status"] == "done"
+        assert [c["prompt"] for c in fake.calls] == [job["prompt"] for job in submitted]
+    finally:
+        fake.gate.set()
+        for job in submitted:
+            core.get_job(job["job_id"], wait_s=10)
 
 
 def test_jobs_queue_in_order(client, fake):
