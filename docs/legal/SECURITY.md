@@ -10,6 +10,8 @@ Known properties you should understand before changing that:
 - **Arbitrary file reads.** Endpoints that accept `{"path": ...}` for input audio read any file the server process
   can read, and outputs are written to the tool's `outputs/` folder. This is convenient for local agents and unsafe
   for untrusted callers.
+- **Comfyflow file parameters.** `image` / `audio` / `video` parameters upload any local path the process can read
+  into ComfyUI's input folder. Comfyflow binds to `127.0.0.1` and has no authentication.
 - **No authentication by default.** The AudioCraft API supports an optional bearer token
   (`AUDIOCRAFT_API_KEY` in `.env`). Set it if the port is reachable by anything other than you.
 - **Model code and checkpoints.** Weights are downloaded from the model owners' repositories and loaded with
@@ -26,5 +28,5 @@ Known properties you should understand before changing that:
 
 ## Reporting a vulnerability
 
-Open a private security advisory on the repository host, or contact the maintainers privately. Please do not file
+Open a private security advisory on the repository host, or email bhomitb@outlook.com. Please do not file
 public issues for security problems.

@@ -9,3 +9,7 @@
 [submodule "image-gen/os/sensenova-u1/upstream"]
 	path = image-gen/os/sensenova-u1/upstream
 	url = https://github.com/OpenSenseNova/SenseNova-U1.git
+
+[submodule "creative/os/creative-workflows/upstream"]
+	path = creative/os/creative-workflows/upstream
+	url = https://github.com/Comfy-Org/ComfyUI.git

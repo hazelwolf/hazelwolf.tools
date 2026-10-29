@@ -5,6 +5,7 @@ server and a user-invocable skill. Layout, conventions and setup rules are in [I
 
 ```
 audio-gen/{os,custom,third-party}   video-gen/{os,custom,third-party}
+image-gen/{os,custom,third-party}   creative/{os,custom,third-party}
 ```
 
 ## Clone

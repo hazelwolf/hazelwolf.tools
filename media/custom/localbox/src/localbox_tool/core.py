@@ -23,9 +23,8 @@ def workspace_root() -> Path:
     return _root
 
 
-# Relative destination paths resolve against the workspace root, so `../ComfyUI/input`
-# is a ComfyUI checkout sitting next to this repo.
-DEFAULT_COMFY = "../ComfyUI/input"
+# Relative destination paths resolve against the workspace root.
+DEFAULT_COMFY = "creative/os/creative-workflows/input"
 DEFAULT_DESTINATIONS = f"comfy={DEFAULT_COMFY}"
 DEFAULT_TAG = "comfy"
 

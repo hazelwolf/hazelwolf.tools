@@ -7,3 +7,9 @@ __pycache__/
 models/
 outputs/
 .vscode/
+
+# ComfyUI runtime data. Workflow JSON under creative/os/creative-workflows/workflows/ stays tracked.
+creative/os/creative-workflows/input/
+creative/os/creative-workflows/output/
+creative/os/creative-workflows/temp/
+creative/os/creative-workflows/user/

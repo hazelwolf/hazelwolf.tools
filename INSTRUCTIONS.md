@@ -19,8 +19,16 @@ tools/
 │   ├── os/               # open-source tools
 │   ├── custom/           # built manually, together with the user
 │   └── third-party/      # paid third-party APIs and systems
-└── video-gen/            # video generation (text/image-to-video, editing, ...)
-    ├── os/
+├── video-gen/            # video generation (text/image-to-video, editing, ...)
+│   ├── os/
+│   ├── custom/
+│   └── third-party/
+├── image-gen/            # image generation
+│   ├── os/
+│   ├── custom/
+│   └── third-party/
+└── creative/             # workflow hosts that span image, video, and audio
+    ├── os/               # creative/os/creative-workflows (ComfyUI)
     ├── custom/
     └── third-party/
 ```

@@ -1,0 +1,179 @@
+{
+  "info": {
+    "name": "Comfyflow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List workflows",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/workflows",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "workflows"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Describe workflow",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/workflows/z_image_turbo",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "workflows",
+            "z_image_turbo"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Run z_image_turbo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/workflows/z_image_turbo/run",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "workflows",
+            "z_image_turbo",
+            "run"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"params\": {\n    \"prompt\": \"a red fox in snow\",\n    \"size.width\": 832,\n    \"size.height\": 1216\n  }\n}"
+        }
+      }
+    },
+    {
+      "name": "Run without waiting",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/workflows/z_image_turbo/run",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "workflows",
+            "z_image_turbo",
+            "run"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"params\": {\n    \"prompt\": \"a paper boat on a pond\"\n  },\n  \"wait\": false\n}"
+        }
+      }
+    },
+    {
+      "name": "Get job",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/{{promptId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "{{promptId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Cancel job",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/{{promptId}}/cancel",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "{{promptId}}",
+            "cancel"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Import last ComfyUI run",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/workflows/import",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "workflows",
+            "import"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"my_flow\",\n  \"description\": \"what it does\",\n  \"overwrite\": false\n}"
+        }
+      }
+    }
+  ]
+}

@@ -9,6 +9,7 @@ terms. Check each upstream project for the authoritative text before relying on 
 |---|---|---|---|
 | audio-gen/os/audiocraft | https://github.com/facebookresearch/audiocraft | MIT (`upstream/LICENSE`) | **CC-BY-NC 4.0 - non-commercial only** (`upstream/LICENSE_weights`) |
 | audio-gen/os/voicestudio | https://github.com/debpalash/VoiceStudio | AGPL-3.0-only (`upstream/LICENSE`); bundled `omnivoice/` Apache-2.0 | Default `k2-fsa/OmniVoice`: **CC-BY-NC - non-commercial only**; other engines vary |
+| creative/os/creative-workflows | https://github.com/Comfy-Org/ComfyUI | GPL-3.0 (`upstream/LICENSE`) | Not shipped here. Each file under `models/` keeps its own license |
 
 Submodules are referenced, not copied: this repo stores only a pinned commit pointer. Our wrapper code
 (`src/`, docs, skills) is Apache 2.0; it does not change the upstream's license.
