@@ -35,15 +35,11 @@ def local_pack() -> Path | None:
         return config.MODEL_PATH if all((config.MODEL_PATH / f).exists() for f in _REQUIRED) else None
     from huggingface_hub import snapshot_download
 
+    dl_kw: dict = {"ignore_patterns": config.HF_IGNORE, "local_files_only": True}
+    if config.HF_REVISION is not None:
+        dl_kw["revision"] = config.HF_REVISION
     try:
-        path = Path(
-            snapshot_download(
-                config.HF_REPO,
-                revision=config.HF_REVISION,
-                ignore_patterns=config.HF_IGNORE,
-                local_files_only=True,
-            )
-        )
+        path = Path(snapshot_download(config.HF_REPO, **dl_kw))
     except Exception:  # noqa: BLE001 - any cache miss means "not downloaded"
         return None
     return path if all((path / f).exists() for f in _REQUIRED) else None
@@ -74,10 +70,11 @@ def ensure_weights() -> Path:
             return path
         log.warning("First use: downloading %s (~45 GB) into %s", config.HF_REPO, config.MODELS_DIR / "huggingface")
         t0 = time.perf_counter()
+        dl_kw = {"ignore_patterns": config.HF_IGNORE}
+        if config.HF_REVISION is not None:
+            dl_kw["revision"] = config.HF_REVISION
         try:
-            path = Path(
-                snapshot_download(config.HF_REPO, revision=config.HF_REVISION, ignore_patterns=config.HF_IGNORE)
-            )
+            path = Path(snapshot_download(config.HF_REPO, **dl_kw))
         except (GatedRepoError, RepositoryNotFoundError) as e:
             raise WeightsUnavailable(
                 f"{config.HF_REPO} is gated. Accept the LTX-2.x Community License at "

@@ -100,7 +100,7 @@ All variables live in the root `tools/.env` (see `.env.example`, section `video-
 |---|---|---|
 | `HF_TOKEN` | empty | Hugging Face read token; needed once for the gated download |
 | `LTX_HF_REPO` | `dgrauet/ltx-2.5-mlx-q8` | Model pack (`-q4` for 16–32 GB Macs) |
-| `LTX_HF_REVISION` | `746ca9a…` | Pinned pack revision |
+| `LTX_HF_REVISION` | `746ca9a…` for default `-q8` only | Pin a revision; omit (or set repo to `-q4`) to use the repo’s default branch |
 | `LTX_MODEL_PATH` | empty | Use a local pack folder instead of the HF download |
 | `LTX_MODELS_DIR` | `models` | HF cache lives in `<this>/huggingface` |
 | `LTX_OUTPUT_DIR` | `outputs` | Generated MP4s |

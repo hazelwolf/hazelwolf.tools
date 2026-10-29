@@ -41,6 +41,12 @@ def test_health(client):
     assert body["loaded"] is False and body["weights_ready"] is True
 
 
+def test_hf_revision_pinned_only_for_default_repo():
+    assert config.resolve_hf_revision(config.DEFAULT_HF_REPO, {}) == config.PINNED_HF_REVISION
+    assert config.resolve_hf_revision("dgrauet/ltx-2.5-mlx-q4", {}) is None
+    assert config.resolve_hf_revision("dgrauet/ltx-2.5-mlx-q4", {"LTX_HF_REVISION": "deadbeef"}) == "deadbeef"
+
+
 @pytest.mark.parametrize(("duration", "fps", "frames"), [(5, 24, 121), (1, 24, 25), (10, 30, 305), (20, 24, 481)])
 def test_frames_snap_to_vae_grid(duration, fps, frames):
     assert core.frames_for(duration, fps) == frames

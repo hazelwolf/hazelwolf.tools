@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -37,8 +38,20 @@ def _flag(name: str, default: str = "") -> bool:
 
 # MLX model pack (gated on Hugging Face: accept the LTX-2.x license once, then set HF_TOKEN) and the revision
 # this tool was tested against. q8 fits a 48 GB Mac without streaming; q4 / bf16 packs work the same way.
-HF_REPO = os.environ.get("LTX_HF_REPO", "dgrauet/ltx-2.5-mlx-q8")
-HF_REVISION = os.environ.get("LTX_HF_REVISION", "746ca9aacb697d2c739f544d68b584214dedcc75")
+DEFAULT_HF_REPO = "dgrauet/ltx-2.5-mlx-q8"
+PINNED_HF_REVISION = "746ca9aacb697d2c739f544d68b584214dedcc75"
+
+
+def resolve_hf_revision(repo: str, environ: Mapping[str, str] | None = None) -> str | None:
+    """Revision for snapshot_download: pinned only for DEFAULT_HF_REPO unless LTX_HF_REVISION is set."""
+    env = os.environ if environ is None else environ
+    if "LTX_HF_REVISION" in env:
+        return env["LTX_HF_REVISION"] or None
+    return PINNED_HF_REVISION if repo == DEFAULT_HF_REPO else None
+
+
+HF_REPO = os.environ.get("LTX_HF_REPO", DEFAULT_HF_REPO)
+HF_REVISION = resolve_hf_revision(HF_REPO)
 # Only the distilled pipeline runs here, so the dev transformer and the distilled LoRA (~30 GB) are skipped.
 HF_IGNORE = ["transformer-dev*", "*distilled-lora*"]
 
