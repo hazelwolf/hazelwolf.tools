@@ -224,6 +224,42 @@ def test_unknown_job_is_404(client):
     assert client.get("/jobs/nope").status_code == 404
 
 
+def test_get_job_wait_survives_eviction():
+    """A finished job may be evicted from _jobs while get_job is blocked on wait()."""
+    job_id = "evict-me-test"
+    job = {
+        "job_id": job_id,
+        "status": "running",
+        "phase": "denoise",
+        "step": 1,
+        "total_steps": 4,
+        "created_at": 0.0,
+        "prompt": "x",
+        "result": None,
+        "error": None,
+    }
+    with core._jobs_changed:
+        core._jobs[job_id] = job
+
+    result: dict = {}
+
+    def waiter():
+        result["job"] = core.get_job(job_id, wait_s=5)
+
+    t = threading.Thread(target=waiter)
+    t.start()
+    time.sleep(0.05)
+    with core._jobs_changed:
+        job["status"] = "done"
+        job["phase"] = "done"
+        job["result"] = {"path": "/tmp/x.mp4"}
+        core._jobs.pop(job_id)
+        core._jobs_changed.notify_all()
+    t.join(timeout=2)
+    assert result["job"]["status"] == "done" and result["job"]["result"]["path"] == "/tmp/x.mp4"
+    core._jobs.pop(job_id, None)
+
+
 def test_files_cannot_escape_output_dir(client):
     assert client.get("/files/..%2Fsecret").status_code == 404
 

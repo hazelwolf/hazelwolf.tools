@@ -343,14 +343,16 @@ def get_job(job_id: str, wait_s: float = 0.0) -> dict:
     """Current state of a job. With wait_s > 0, block up to that long until it finishes (or fails)."""
     deadline = time.monotonic() + max(0.0, min(wait_s, 300.0))
     with _jobs_changed:
-        if job_id not in _jobs:
+        job = _jobs.get(job_id)
+        if job is None:
             raise ServiceError(f"Unknown job: {job_id} (jobs are kept in memory; a restart clears them)", status=404)
-        while _jobs[job_id]["status"] in ("queued", "running"):
+        # Hold the dict object: submit() may evict finished jobs from _jobs while we wait.
+        while job["status"] in ("queued", "running"):
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 break
             _jobs_changed.wait(remaining)
-        return _public(_jobs[job_id])
+        return _public(job)
 
 
 def list_jobs() -> list[dict]:
