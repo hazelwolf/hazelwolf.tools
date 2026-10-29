@@ -10,6 +10,7 @@ Tools are grouped by domain, then by category:
 tools/
 ├── INSTRUCTIONS.md
 ├── LICENSE / NOTICE      # Apache 2.0 (our code only)
+├── docs/plan/KANBAN.md       # work tracker (to do / in progress / done)
 ├── docs/ACKNOWLEDGEMENTS.md  # thanks to upstream projects and the OSS community
 ├── docs/legal/           # DISCLAIMER, SECURITY, LICENSE-NOTES
 ├── .gitmodules           # OS upstream repos (submodules)
@@ -83,6 +84,7 @@ Thin client over a vendor service; no model weights, no upstream code.
 - Secret scanning: a Gitleaks pre-commit hook (`.pre-commit-config.yaml`, rules in `.gitleaks.toml`) blocks commits containing secrets. Per clone: `uv tool install pre-commit && pre-commit install --install-hooks`. Run all hooks with `pre-commit run --all-files`. If a finding is a false positive, allowlist it in `.gitleaks.toml` (never bypass with `--no-verify`); if it is real, rotate the key.
 - Linting: Ruff check and Ruff format both run as pre-commit hooks (config in `ruff.toml`, rules E/F/W/I/B/UP, line length 120). Submodules (`**/upstream`) are excluded with `force-exclude`, so third-party code is never linted or formatted. Run manually with `uvx ruff check .` and `uvx ruff format .`. Fix findings in our code; do not add per-line ignores without a reason.
 - Import order caveat: anything that must run before torch/huggingface imports (env + cache dirs) belongs in the package `__init__.py`, not in an import that the sorter can reorder.
+- Planning: keep `docs/plan/KANBAN.md` current. Add a card when work is requested, move it as status changes, and tick it only when verified.
 - Commit/push only when the user asks.
 
 ## Environment variables: one shared `.env`
