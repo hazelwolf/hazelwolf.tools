@@ -1,7 +1,15 @@
 Tools workspace (AI agent tools: API + MCP + skills)
-Copyright 2026 HazelWolf
+Copyright 2026 Bhomit Bhandari
 
 Licensed under the Apache License, Version 2.0 (see LICENSE).
 
 This repository includes third-party open-source projects as git submodules (see .gitmodules).
 They are NOT covered by this license and keep their own licenses. See docs/legal/LICENSE-NOTES.md.
+
+Disclaimer and responsible use
+This software and anything it generates (images, audio, video, text) is provided "AS IS", without warranty of any
+kind (Apache License 2.0, sections 7 and 8). The copyright holder is not responsible or liable for how the software
+or its outputs are used, including any misuse, unlawful use, infringement of third-party rights, or harm to others,
+nor for the behavior, licenses or output of the third-party models and projects it runs. Users are solely
+responsible for the prompts and inputs they supply, for the content they generate and publish, and for complying
+with applicable law and each model's license (for example, consent for any real person's likeness or voice).

@@ -4,32 +4,29 @@ Single source of truth for work on this workspace. Update it in the same change 
 Last updated: 2026-10-29.
 
 **Rules:** one row per card. Change the `Status` cell and move the row to the matching section when status
-changes. Mark a card `Done` only when it is verified, not just written.
+changes. Mark a card `Done` only when it is verified, not just written, then move its row to
+[archive.md](archive.md).
 Status values: `Blocked`, `To do`, `In progress`, `Done`.
-Area codes: `AC` AudioCraft, `SN` SenseNova-U1, `PL` platform/workspace, `VG` video-gen.
+Area codes: `AC` AudioCraft, `SN` SenseNova-U1, `PL` platform/workspace, `VG` video-gen, `CW` creative-workflows.
 
 ## Summary
 
 | Status | Cards |
 |---|---|
-| Blocked | 3 |
-| In progress | 0 |
-| To do | 38 |
-| Done | 8 |
+| Blocked | 0 |
+| In progress | 1 |
+| To do | 46 |
+| Done | 0 (see [archive.md](archive.md)) |
 
 ## Blocked / waiting on a decision
 
-| ID | Area | Task | Status | Notes |
-|---|---|---|---|---|
-| PL-1 | Platform | Restart ComfyUI (`/path/to/ComfyUI`, `main.py --listen 127.0.0.1 --port 8188`) | Blocked | Stopped by mistake earlier; waiting for the owner to confirm |
-| PL-3 | Platform | Confirm copyright holder in `NOTICE` ("HazelWolf") and add a security-reporting contact in `docs/legal/SECURITY.md` | Blocked | Needs owner input |
-| VG-1 | Video-gen | Choose the first video-gen model to set up | Blocked | Candidates for 12 GB: Wan 2.2 TI2V-5B fp8, LTX-Video, Wan 2.1 1.3B |
+_(nothing)_
 
 ## In progress
 
 | ID | Area | Task | Status | Notes |
 |---|---|---|---|---|
-| - | - | _(nothing)_ | - | - |
+| CW-0 | Creative workflows | ComfyUI submodule, models and workflows beside `upstream`, relative `--base-directory` | In progress | Pin `e9027f2b`. Files are in place. Server starts with `run.sh` and Z-Image Turbo ran end to end (CW-6); other workflows not yet run |
 
 ## To do
 
@@ -73,19 +70,18 @@ GPU works again (driver 580-open). Already verified before the driver failure: `
 | SN-19 | SenseNova | Re-run the engine infographic with a shorter prompt (no circular cycle diagram) to cut label errors | To do | Follow-up from the comparison |
 | SN-20 | SenseNova | Try `SenseNova-U1-8B-MoT-Infographic-V3` and compare against U1.5 base and LoRA | To do | About 35 GB download |
 | SN-21 | SenseNova | Commit the SenseNova tool (submodule pointer, README, `uv.lock`, service code) | To do | Only when the owner asks |
+| CW-1 | Creative workflows | Get a lower-VRAM Z-Image Turbo (fp8 or GGUF) so the model fits in 12 GB without streaming weights from RAM | To do | bf16 (11.7 GB) is reloaded every run, about 1.38 s per step; only bf16 is installed. Compare speed and quality against bf16 |
+| CW-2 | Creative workflows | Switch the Z-Image workflow to `qwen_3_4b_fp8_mixed.safetensors` (5.6 GB, already downloaded) instead of the 8 GB fp16 encoder | To do | Check output quality against the fp16 encoder |
+| CW-3 | Creative workflows | Make the Z-Image workflow usable for real work: batch / seed sweep, LoRA slot, optional upscale or refine stage | To do | API-format JSON, a CLI and seed control now exist via comfyflow (`z_image_turbo` workflow); LoRA slot, batch / seed sweep and upscale stage still missing |
+| CW-4 | Creative workflows | Document the Z-Image Turbo workflow in `creative/os/creative-workflows/docs/WORKFLOWS.md`: required model files, settings, measured timings | To do | The doc does not mention it yet |
+| CW-5 | Creative workflows | Clean up the Z-Image workflow's embedded note: replace the Comfy-Org issue link and Hugging Face paths with this repo's local paths | To do | Keep `workflows/` and `user/default/workflows/` copies in sync |
+| CW-7 | Creative workflows | Install `ffmpeg` / `ffprobe` on this machine | To do | Missing; needed to inspect and trim generated video. Test used PyAV from the ComfyUI venv instead |
+| CW-8 | Creative workflows | Comfyflow: progress updates for long jobs (ComfyUI websocket) and optional auto-start of ComfyUI | To do | Listed as open questions in `creative/custom/comfyflow/docs/DESIGN.md` |
+| CW-9 | Creative workflows | Comfyflow: import more workflows (`swap_person_scail2_int8`, `upscale_video_seedvr2`, `video_humo`), title their nodes, and time them | To do | Models for SCAIL-2 and SeedVR2 are not all downloaded yet |
 | PL-2 | Platform | Fix two Ruff import-order findings in `media/custom/dropbox/tests/` | To do | `uvx ruff check media --fix` |
 | PL-4 | Platform | Verify paper titles and authors in `docs/ACKNOWLEDGEMENTS.md` | To do | Written from memory |
 | PL-5 | Platform | Fetch the `voicestudio` submodule | To do | `git submodule update --init audio-gen/os/voicestudio/upstream` |
 
 ## Done
 
-| ID | Area | Task | Status | Notes |
-|---|---|---|---|---|
-| PL-6 | Platform | Workspace structure (`audio-gen`, `video-gen`, `image-gen`; `os` / `custom` / `third-party`) and `INSTRUCTIONS.md` | Done | |
-| PL-7 | Platform | Shared `.env.example`, loaded from the workspace root by every tool | Done | |
-| PL-8 | Platform | Git repo, OS upstreams as submodules, fetch/clone recursion configured | Done | |
-| PL-9 | Platform | Gitleaks and Ruff pre-commit hooks (submodules excluded from linting) | Done | |
-| PL-10 | Platform | Apache 2.0 `LICENSE`, `NOTICE`, `docs/legal/`, `docs/ACKNOWLEDGEMENTS.md`, root `README.md` | Done | |
-| PL-11 | Platform | NVIDIA driver fixed: open 580 kernel module for the RTX PRO 3000 Blackwell | Done | Was loading the proprietary module |
-| AC-0 | AudioCraft | Service: uv env (torch cu128 for Blackwell), HTTP API (20 routes), MCP server (12 tools), registry (22 models) | Done | Commit `15a51a1` |
-| SN-0 | SenseNova | Submodule, uv env, U1.5-8B-MoT weights (35 GB) and 8-step LoRA, engine infographic, base vs LoRA comparison | Done | LoRA about 3x faster, similar quality; see `image-gen/os/sensenova-u1/outputs/compare/EVALUATION.md` |
+Completed cards are in [archive.md](archive.md).

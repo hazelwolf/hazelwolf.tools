@@ -1,6 +1,6 @@
 # Localbox
 
-A single page on the local network for dropping images and videos onto this machine. Each upload goes to a destination tag. The default tag is `comfy`, which writes into `../ComfyUI/input`.
+A single page on the local network for dropping images and videos onto this machine. Each upload goes to a destination tag. The default tag is `comfy`, which writes into `creative/os/creative-workflows/input`.
 
 No login. Anything that can open the page on the LAN can upload.
 

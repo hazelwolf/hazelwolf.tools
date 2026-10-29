@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "comfyflow": {
+      "command": "uv",
+      "args": ["run", "--directory", "creative/custom/comfyflow", "comfyflow-mcp"]
+    }
+  }
+}

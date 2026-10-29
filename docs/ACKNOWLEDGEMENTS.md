@@ -41,6 +41,13 @@ cloning, multilingual TTS and transcription behind one backend. Thanks also to H
 [k2-fsa](https://github.com/k2-fsa/OmniVoice) team for **OmniVoice**, the default zero-shot TTS model, and to the
 WhisperX, faster-whisper, MLX and sherpa-onnx projects it builds on.
 
+### ComfyUI - Comfy-Org and contributors
+
+- Repository: https://github.com/Comfy-Org/ComfyUI
+- Used in: `creative/os/creative-workflows`
+
+Thank you to comfyanonymous and the ComfyUI contributors for the node-based creative workflow host. The code is GPL-3.0. We pin it as a submodule and keep models and workflows beside that checkout.
+
 <!-- Add one section per new submodule: name, repo URL, where it is used, what it gives us, thanks. -->
 
 ## Libraries and tools we depend on

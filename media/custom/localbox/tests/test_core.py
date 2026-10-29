@@ -73,8 +73,8 @@ def test_malformed_destinations(monkeypatch):
 
 
 def test_relative_destination_resolves_against_workspace(monkeypatch):
-    monkeypatch.setenv("LOCALBOX_DESTINATIONS", "comfy=../ComfyUI/input")
-    assert core.destinations()["comfy"] == (core.workspace_root() / "../ComfyUI/input").resolve()
+    monkeypatch.setenv("LOCALBOX_DESTINATIONS", "comfy=creative/os/creative-workflows/input")
+    assert core.destinations()["comfy"] == (core.workspace_root() / "creative/os/creative-workflows/input").resolve()
 
 
 class _bytes:

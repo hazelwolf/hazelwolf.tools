@@ -8,7 +8,7 @@ description: >-
 
 # Localbox
 
-Use this when a local image or video should land in a destination folder. The default tag `comfy` writes to `../ComfyUI/input`.
+Use this when a local image or video should land in a destination folder. The default tag `comfy` writes to `creative/os/creative-workflows/input`.
 
 Prefer the MCP tools. Fall back to the HTTP API if MCP is not connected.
 
