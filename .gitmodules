@@ -13,3 +13,15 @@
 [submodule "creative/os/creative-workflows/upstream"]
 	path = creative/os/creative-workflows/upstream
 	url = https://github.com/Comfy-Org/ComfyUI.git
+
+[submodule "image-gen/os/zimage/upstream"]
+	path = image-gen/os/zimage/upstream
+	url = https://github.com/filipstrand/mflux.git
+
+[submodule "video-gen/os/ltx/upstream"]
+	path = video-gen/os/ltx/upstream
+	url = https://github.com/dgrauet/ltx-2-mlx.git
+
+[submodule "video-gen/os/wan/upstream"]
+	path = video-gen/os/wan/upstream
+	url = https://github.com/lpalbou/mlx-gen.git

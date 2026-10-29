@@ -1,0 +1,75 @@
+{
+  "info": {
+    "name": "Wan Video",
+    "description": "Local text/image-to-video with Wan 2.2 TI2V-5B on Apple Silicon (mlx-gen). Start `wan-api` first. Generation runs as jobs: Generate returns a job_id, then poll Get job.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{apiKey}}", "type": "string"}]
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://127.0.0.1:8150"},
+    {"key": "jobId", "value": ""},
+    {"key": "videoName", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/health",
+        "description": "Whether the package is downloaded, the model is loaded, and how many jobs are active."}
+    },
+    {
+      "name": "Generate video (queue job)",
+      "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+        "const b = pm.response.json(); if (b.job_id) pm.collectionVariables.set('jobId', b.job_id);"
+      ]}}],
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"prompt\": \"A paper boat drifts down a rain-filled gutter, low tracking shot, soft overcast light\",\n  \"width\": 832,\n  \"height\": 480,\n  \"duration_s\": 4,\n  \"steps\": 25,\n  \"seed\": 42,\n  \"output_name\": \"boat\"\n}"},
+        "url": "{{baseUrl}}/generate",
+        "description": "Returns 202 with a job_id (stored in {{jobId}}). A clip takes about 12 minutes."
+      }
+    },
+    {
+      "name": "Image to video (queue job)",
+      "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+        "const b = pm.response.json(); if (b.job_id) pm.collectionVariables.set('jobId', b.job_id);"
+      ]}}],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {"key": "prompt", "value": "she turns toward the window and smiles, soft morning light", "type": "text"},
+            {"key": "image", "type": "file", "src": "", "description": "First frame (png/jpg/webp)"},
+            {"key": "duration_s", "value": "4", "type": "text"},
+            {"key": "steps", "value": "25", "type": "text"},
+            {"key": "seed", "value": "", "type": "text", "disabled": true}
+          ]
+        },
+        "url": "{{baseUrl}}/img2video"
+      }
+    },
+    {
+      "name": "Get job",
+      "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+        "const b = pm.response.json(); if (b.result && b.result.name) pm.collectionVariables.set('videoName', b.result.name);"
+      ]}}],
+      "request": {"method": "GET", "header": [],
+        "url": {"raw": "{{baseUrl}}/jobs/{{jobId}}?wait_s=30", "host": ["{{baseUrl}}"], "path": ["jobs", "{{jobId}}"],
+                "query": [{"key": "wait_s", "value": "30"}]},
+        "description": "Status, progress (phase, step/total_steps) and, when done, the result. Stores the file name in {{videoName}}."}
+    },
+    {
+      "name": "List jobs",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/jobs"}
+    },
+    {
+      "name": "Download video",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/files/{{videoName}}"}
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "info": {
+    "name": "Z-Image",
+    "description": "Local text-to-image and img2img with Z-Image-Turbo on Apple Silicon (mflux/MLX). Start `zimage-api` first.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{apiKey}}", "type": "string"}]
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://127.0.0.1:8130"},
+    {"key": "imageName", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/health",
+        "description": "Whether the model is loaded, its source and quantization."}
+    },
+    {
+      "name": "Generate image",
+      "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+        "const b = pm.response.json(); if (b.images && b.images.length) pm.collectionVariables.set('imageName', b.images[0].name);"
+      ]}}],
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"prompt\": \"A red fox resting in fresh snow under soft winter light, detailed fur, gentle bokeh\",\n  \"width\": 1024,\n  \"height\": 1024,\n  \"steps\": 9,\n  \"seed\": 42,\n  \"count\": 1,\n  \"output_name\": \"fox\"\n}"},
+        "url": "{{baseUrl}}/generate",
+        "description": "Writes PNGs to outputs/ and returns their paths and download urls. Stores the first name in {{imageName}}."
+      }
+    },
+    {
+      "name": "Img2img",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {"key": "prompt", "value": "the same scene with warmer evening light", "type": "text"},
+            {"key": "image", "type": "file", "src": "", "description": "Init image (png/jpg/webp)"},
+            {"key": "image_strength", "value": "0.4", "type": "text"},
+            {"key": "width", "value": "1024", "type": "text"},
+            {"key": "height", "value": "1024", "type": "text"},
+            {"key": "seed", "value": "", "type": "text", "disabled": true}
+          ]
+        },
+        "url": "{{baseUrl}}/img2img"
+      }
+    },
+    {
+      "name": "Download image",
+      "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/files/{{imageName}}"}
+    },
+    {
+      "name": "Unload model",
+      "request": {"method": "POST", "header": [], "url": "{{baseUrl}}/unload",
+        "description": "Frees the model's memory now."}
+    }
+  ]
+}

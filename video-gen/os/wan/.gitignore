@@ -1,0 +1,3 @@
+# Weights (HF download) and generated videos. Also covered by the root .gitignore.
+models/
+outputs/
