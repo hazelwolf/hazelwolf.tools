@@ -5,8 +5,14 @@
 #   hw list                      tools: name, folder, description
 #   hw dir <tool>                absolute folder of a tool
 #   hw skill <tool>              absolute path of the tool's SKILL.md
-#   hw <tool> <cmd> [args...]    uv run --directory <tool dir> <tool>-<cmd> (e.g. hw zimage api)
-#   hw install                   link this skill into ~/.claude/skills and register every tool's MCP server (user scope)
+#   hw <tool> <cmd> [args...]    uv run --frozen --directory <tool dir> <tool>-<cmd> (e.g. hw imagegen api)
+#   hw install                   link this skill and every tool's skill into ~/.claude/skills and register every
+#                                tool's MCP server at Claude Code user scope, so they work from any project
+#   hw test [tool...]            start each MCP server over stdio, list its tools and call its health tool
+#
+# Commands run with `uv run --frozen`: the committed uv.lock is used as-is instead of being re-resolved. Without it,
+# uv re-fetches direct-URL dependencies (VoiceStudio's spaCy model) on every launch, which can take longer than
+# Claude Code's 30 s MCP connect timeout.
 set -euo pipefail
 
 here="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
@@ -48,10 +54,22 @@ case "$cmd" in
     ln -sfn "$here" "$HOME/.claude/skills/hazelwolf"
     echo "linked ~/.claude/skills/hazelwolf -> $here"
     tool_dirs | while IFS=$'\t' read -r name dir; do
+      link="$HOME/.claude/skills/$name"
+      if [ -e "$link" ] && [ ! -L "$link" ]; then
+        echo "skipped ~/.claude/skills/$name: a real folder is already there" >&2
+      else
+        ln -sfn "$dir/skills/$name" "$link"
+        echo "linked ~/.claude/skills/$name"
+      fi
       has_script "$dir" "$name-mcp" || continue
       claude mcp remove -s user "$name" >/dev/null 2>&1 || true
-      claude mcp add -s user "$name" -- uv run --directory "$dir" "$name-mcp"
+      claude mcp add -s user "$name" -- uv run --frozen --directory "$dir" "$name-mcp"
     done
+    echo "done; start a new Claude Code session to load them (check with: hw test, claude mcp list)"
+    ;;
+  test)
+    shift
+    exec uv run --quiet --script "$here/mcp_smoke.py" "$root" "$@"
     ;;
   *)
     tool="$cmd"
@@ -59,6 +77,6 @@ case "$cmd" in
     shift 2
     dir="$(dir_of "$tool")"
     has_script "$dir" "$tool-$sub" || { echo "hw: $tool has no '$tool-$sub' entrypoint" >&2; exit 1; }
-    exec uv run --directory "$dir" "$tool-$sub" "$@"
+    exec uv run --frozen --directory "$dir" "$tool-$sub" "$@"
     ;;
 esac

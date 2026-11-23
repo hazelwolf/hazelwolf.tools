@@ -1,0 +1,34 @@
+[project]
+name = "imgeval"
+version = "0.1.0"
+description = "Side-by-side eval of local text-to-image models (Z-Image-Turbo and challengers) on Apple Silicon via mflux (MLX)"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "mflux",
+    "python-dotenv",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[project.scripts]
+imgeval = "imgeval.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/imgeval"]
+
+# Reuse the mflux submodule pinned by image-gen/os/imagegen, so the baseline here is the exact code imagegen serves.
+[tool.uv.sources]
+mflux = { path = "../../image-gen/os/imagegen/upstream", editable = true }
+
+# Same hold as imagegen: Pillow 13 imports numbers._IntegralLike, which CPython 3.13 does not have.
+[tool.uv]
+constraint-dependencies = ["pillow>=12.3.0,<13"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

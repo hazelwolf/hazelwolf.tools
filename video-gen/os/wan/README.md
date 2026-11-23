@@ -126,7 +126,7 @@ image models: `uv run mlxgen --help`.
 ## Dependency notes
 
 - mlx-gen installs as a path dependency. It ships a module named `mflux` (it is a fork of mflux), so it must stay in
-  its own venv, separate from `image-gen/os/zimage`.
+  its own venv, separate from `image-gen/os/imagegen`.
 - Pillow is capped below 13: Pillow 13 does not import on this CPython.
 - `pytest` is limited to `tests/` so it never collects upstream's test suite.
 

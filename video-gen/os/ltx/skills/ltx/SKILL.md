@@ -39,7 +39,7 @@ The weights are not in git, and the model pack is **gated** on Hugging Face. Cal
   Returns `{"path": ".../outputs/latte.mp4", "duration_s": 5.04, "seed": 123, "generation_time_s": ..., ...}`.
   Open it on macOS with `open <path>`.
 - Animate a still: add `"image_path": "/abs/frame.png"` (it becomes the first frame; match its aspect ratio with
-  `width`/`height`). Images from the `zimage` tool work well here.
+  `width`/`height`). Images from the `imagegen` tool work well here.
 - `duration_s: null` lets the model choose a length (1–20 s) from the prompt.
 - `unload_model` frees memory right away; otherwise the pipeline unloads after 10 idle minutes.
 

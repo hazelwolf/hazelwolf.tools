@@ -27,10 +27,11 @@ tools/
 │   ├── os/
 │   ├── custom/
 │   └── third-party/
-└── creative/             # workflow hosts that span image, video, and audio
-    ├── os/               # creative/os/creative-workflows (ComfyUI)
-    ├── custom/
-    └── third-party/
+├── creative/             # workflow hosts that span image, video, and audio
+│   ├── os/               # creative/os/creative-workflows (ComfyUI)
+│   ├── custom/
+│   └── third-party/
+└── evals/                # model comparisons per domain (evals/image-gen); own uv project each, no API/MCP/skill
 ```
 
 A tool is a folder directly under `<domain>/<category>/`, e.g. `audio-gen/os/kokoro/`. New domains follow the same `os/ custom/ third-party/` split. Rules 1-3 below apply to every tool in every category; the category only changes what the tool folder contains and how it is sourced.
