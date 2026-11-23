@@ -11,7 +11,7 @@ terms. Check each upstream project for the authoritative text before relying on 
 | audio-gen/os/voicestudio | https://github.com/debpalash/VoiceStudio | AGPL-3.0-only (`upstream/LICENSE`); bundled `omnivoice/` Apache-2.0 | Default `k2-fsa/OmniVoice`: **CC-BY-NC - non-commercial only**; other engines vary |
 | creative/os/creative-workflows | https://github.com/Comfy-Org/ComfyUI | GPL-3.0 (`upstream/LICENSE`) | Not shipped here. Each file under `models/` keeps its own license |
 
-| image-gen/os/zimage | https://github.com/filipstrand/mflux | MIT (`upstream/LICENSE`) | `Tongyi-MAI/Z-Image-Turbo`: Apache-2.0 (commercial use allowed) |
+| image-gen/os/imagegen | https://github.com/filipstrand/mflux | MIT (`upstream/LICENSE`) | `Tongyi-MAI/Z-Image-Turbo` and `Boogu/Boogu-Image-0.1-Turbo`: Apache-2.0 (commercial use allowed) |
 | video-gen/os/ltx | https://github.com/dgrauet/ltx-2-mlx | MIT (`upstream/LICENSE`) | LTX-2.5: **LTX-2.x Community License** - free under $10M annual revenue, paid license above (gated) |
 | video-gen/os/wan | https://github.com/lpalbou/mlx-gen | MIT (`upstream/LICENSE`) | `Wan-AI/Wan2.2-TI2V-5B` (8-bit package by AbstractFramework): Apache-2.0 (commercial use allowed) |
 
@@ -36,6 +36,19 @@ CC-BY-NC. See `audio-gen/os/voicestudio/LICENSE-NOTES.md`.
 The ltx-2-mlx port is MIT, but the LTX-2.5 weights are under Lightricks' LTX-2.x Community License: entities with
 $10M or more in annual revenue need a paid commercial agreement. The packs are gated, so each user accepts the
 license on Hugging Face. See `video-gen/os/ltx/LICENSE-NOTES.md`.
+
+## Evals (`evals/`)
+
+Evals download extra model weights to compare against our tools. They run locally, and the weights stay in a
+gitignored `models/` folder. Being in an eval does not make a model fit for production use. Check its license
+first.
+
+| Eval | Code | Model | Weights license |
+|---|---|---|---|
+| evals/image-gen | mflux (MIT), shared with `image-gen/os/imagegen` | Z-Image-Turbo and Boogu, the same weights as `image-gen/os/imagegen` | Apache-2.0 (commercial use allowed) |
+
+FLUX.2 klein 4B (Apache-2.0) and Qwen-Image 2.1 Turbo (**Qwen Research License - non-commercial**) were part of the
+first image-gen comparison and were dropped. They are no longer in the eval.
 
 ## Third-party paid APIs (`<domain>/third-party/<tool>`)
 

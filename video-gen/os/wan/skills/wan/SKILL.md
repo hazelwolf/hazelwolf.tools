@@ -21,7 +21,7 @@ Tool dir: `video-gen/os/wan`
 |---|---|
 | Fast drafts, clips with sound (dialogue, ambience, music) | `ltx` (~70 s per 5 s clip) |
 | Commercial use at a company with $10M+ revenue, or Wan's look | `wan` |
-| Animate a still (e.g. from `zimage`) | either; `wan` is often rated stronger at image-to-video |
+| Animate a still (e.g. from `imagegen`) | either; `wan` is often rated stronger at image-to-video |
 
 ## 0. First use
 

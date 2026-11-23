@@ -27,10 +27,11 @@ tools/
 │   ├── os/
 │   ├── custom/
 │   └── third-party/
-└── creative/             # workflow hosts that span image, video, and audio
-    ├── os/               # creative/os/creative-workflows (ComfyUI)
-    ├── custom/
-    └── third-party/
+├── creative/             # workflow hosts that span image, video, and audio
+│   ├── os/               # creative/os/creative-workflows (ComfyUI)
+│   ├── custom/
+│   └── third-party/
+└── evals/                # model comparisons per domain (evals/image-gen); own uv project each, no API/MCP/skill
 ```
 
 A tool is a folder directly under `<domain>/<category>/`, e.g. `audio-gen/os/kokoro/`. New domains follow the same `os/ custom/ third-party/` split. Rules 1-3 below apply to every tool in every category; the category only changes what the tool folder contains and how it is sourced.
@@ -94,6 +95,7 @@ Thin client over a vendor service; no model weights, no upstream code.
 - Import order caveat: anything that must run before torch/huggingface imports (env + cache dirs) belongs in the package `__init__.py`, not in an import that the sorter can reorder.
 - Planning: keep `docs/plan/KANBAN.md` current. Add a card when work is requested, move it as status changes, and tick it only when verified.
 - Commit/push only when the user asks.
+- Agent co-author trailer: an agent that writes or commits a change credits itself with a co-author trailer on the last line of the commit message, chosen by which agent is committing. Claude Code: `Co-Authored-By: Claude <model> <[REDACTED_EMAIL_ADDRESS_2]>` (e.g. `Claude Opus 5.5`). Cursor: `Co-authored-by: Cursor <[REDACTED_EMAIL_ADDRESS_2]>`. Add only the trailer for the agent that did the work (both if both did), never one for an agent that was not involved, and none for a commit made by hand without an agent.
 
 ## Environment variables: one shared `.env`
 

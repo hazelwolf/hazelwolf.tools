@@ -1,13 +1,13 @@
 # Kanban tracker
 
 Single source of truth for work on this workspace. Update it in the same change as the work.
-Last updated: 2026-10-29.
+Last updated: 2026-11-12.
 
 **Rules:** one row per card. Change the `Status` cell and move the row to the matching section when status
 changes. Mark a card `Done` only when it is verified, not just written, then move its row to
 [archive.md](archive.md).
 Status values: `Blocked`, `To do`, `In progress`, `Done`.
-Area codes: `AC` AudioCraft, `SN` SenseNova-U1, `PL` platform/workspace, `VG` video-gen, `CW` creative-workflows.
+Area codes: `AC` AudioCraft, `SN` SenseNova-U1, `PL` platform/workspace, `VG` video-gen, `CW` creative-workflows, `EV` evals.
 
 ## Summary
 
@@ -15,7 +15,7 @@ Area codes: `AC` AudioCraft, `SN` SenseNova-U1, `PL` platform/workspace, `VG` vi
 |---|---|
 | Blocked | 0 |
 | In progress | 1 |
-| To do | 46 |
+| To do | 48 |
 | Done | 0 (see [archive.md](archive.md)) |
 
 ## Blocked / waiting on a decision
@@ -81,6 +81,8 @@ GPU works again (driver 580-open). Already verified before the driver failure: `
 | PL-2 | Platform | Fix two Ruff import-order findings in `media/custom/dropbox/tests/` | To do | `uvx ruff check media --fix` |
 | PL-4 | Platform | Verify paper titles and authors in `docs/ACKNOWLEDGEMENTS.md` | To do | Written from memory |
 | PL-5 | Platform | Fetch the `voicestudio` submodule | To do | `git submodule update --init audio-gen/os/voicestudio/upstream` |
+| EV-2 | Evals | Full image-gen run, Z-Image vs Boogu (`imgeval run --name full`, 160 images, ~2 h) and blind review, to confirm the routing rule | To do | Smoke run done 2026-11-12 (EV-1, archived) |
+| EV-3 | Evals | Evals for the other tools (video: LTX vs Wan; TTS) | To do | Reuse the run/review/tally pattern from `evals/image-gen` |
 
 ## Done
 

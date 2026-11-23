@@ -15,7 +15,7 @@
 	url = https://github.com/Comfy-Org/ComfyUI.git
 
 [submodule "image-gen/os/zimage/upstream"]
-	path = image-gen/os/zimage/upstream
+	path = image-gen/os/imagegen/upstream
 	url = https://github.com/filipstrand/mflux.git
 
 [submodule "video-gen/os/ltx/upstream"]

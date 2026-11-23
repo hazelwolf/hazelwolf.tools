@@ -51,12 +51,17 @@ Thank you to comfyanonymous and the ComfyUI contributors for the node-based crea
 ### mflux - Filip Strand and contributors
 
 - Repository: https://github.com/filipstrand/mflux
-- Used in: `image-gen/os/zimage`
+- Used in: `image-gen/os/imagegen`
 
 Thank you to Filip Strand and the mflux contributors for native MLX implementations of modern image models, which
 let Z-Image-Turbo run fast on Apple Silicon. Thanks also to Tongyi Lab (Alibaba) for **Z-Image-Turbo**
 (*Z-Image: An Efficient Image Generation Foundation Model with Single-Stream Diffusion Transformer*, 2025) and for
 releasing the weights under Apache-2.0, and to Apple's [MLX](https://github.com/ml-explore/mlx) team.
+
+The tool also runs **Boogu Image 0.1 Turbo** through mflux, for text-heavy images. Thank you to the Boogu team
+for releasing it under Apache-2.0. Our image-gen comparison (`evals/image-gen`) also ran **FLUX.2 klein 4B** (Black
+Forest Labs) and **Qwen-Image 2.1 Turbo** (Qwen team, Alibaba); thank you to both teams for releasing their
+weights.
 
 ### ltx-2-mlx - dgrauet and contributors
 

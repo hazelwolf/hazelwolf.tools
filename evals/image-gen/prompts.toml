@@ -1,0 +1,252 @@
+# Fixed prompt set for the image-gen eval. Ids are stable: results and votes refer to them, so add new prompts
+# with new ids instead of rewording old ones. `check` says what a reviewer should look at.
+
+# ---------------------------------------------------------------- photorealism
+
+[[prompt]]
+id = "photo-01"
+category = "photo"
+text = "A red fox standing in fresh snow at dawn, soft golden side light, detailed fur, shallow depth of field, shot on a 300mm telephoto lens"
+check = "Fur detail, natural light, believable snow"
+
+[[prompt]]
+id = "photo-02"
+category = "photo"
+text = "Interior of a small Tokyo ramen shop at night, steam rising from bowls, warm tungsten light, wet street visible through the window"
+check = "Lighting mix, steam, reflections in the window"
+
+[[prompt]]
+id = "photo-03"
+category = "photo"
+text = "Macro photograph of a dewdrop on a green leaf, the drop reflecting a blue sky and a tiny tree, extremely sharp"
+check = "Refraction inside the drop, sharpness"
+
+[[prompt]]
+id = "photo-04"
+category = "photo"
+text = "Aerial drone shot of a winding river through autumn forest, orange and yellow trees, morning mist in the valleys"
+check = "Scale, mist, colour"
+
+[[prompt]]
+id = "photo-05"
+category = "photo"
+text = "Product photo of a matte black ceramic coffee mug on a light oak table, soft window light from the left, minimal studio background"
+check = "Clean product shot, material, shadows"
+
+[[prompt]]
+id = "photo-06"
+category = "photo"
+text = "A vintage red bicycle leaning against a pastel blue wall in a Lisbon alley, cobblestones, late afternoon sun"
+check = "Bicycle geometry (spokes, chain), cobblestones"
+
+[[prompt]]
+id = "photo-07"
+category = "photo"
+text = "A glass of iced lemonade with condensation droplets, lemon slices and mint, on a sunny patio table"
+check = "Glass transparency, condensation, ice"
+
+[[prompt]]
+id = "photo-08"
+category = "photo"
+text = "A lighthouse on a rocky cliff during a storm, huge waves crashing, dramatic dark clouds, a beam of light cutting through rain"
+check = "Waves, light beam, mood"
+
+# ---------------------------------------------------------------- text in the image
+
+[[prompt]]
+id = "text-01"
+category = "text"
+text = "A neon sign on a brick wall that reads \"OPEN LATE\" in pink cursive letters, night, slight glow"
+check = "Exact text: OPEN LATE"
+
+[[prompt]]
+id = "text-02"
+category = "text"
+text = "A vintage travel poster for \"VISIT NORWAY\" with fjords and a red cabin, bold sans-serif title at the top"
+check = "Exact text: VISIT NORWAY"
+
+[[prompt]]
+id = "text-03"
+category = "text"
+text = "A coffee shop chalkboard menu listing \"Espresso 3.00\", \"Latte 4.50\" and \"Mocha 5.00\" in white chalk handwriting"
+check = "All three items and prices legible and correct"
+
+[[prompt]]
+id = "text-04"
+category = "text"
+text = "A book cover titled \"The Silent Orchard\" by \"Mira Holt\", minimalist illustration of a single apple tree, cream background"
+check = "Title and author spelled correctly"
+
+[[prompt]]
+id = "text-05"
+category = "text"
+text = "A street sign at an intersection reading \"Maple Ave\" and \"5th St\", green signs with white letters, blue sky"
+check = "Both signs correct"
+
+[[prompt]]
+id = "text-06"
+category = "text"
+text = "A Chinese shop sign with the characters \"茶馆\" in gold calligraphy on a dark wooden board, red lanterns on both sides"
+check = "Characters 茶馆 correct"
+
+[[prompt]]
+id = "text-07"
+category = "text"
+text = "A smartphone screen showing a notification that says \"Your order has shipped\", clean UI, held in a hand"
+check = "Sentence correct, UI plausible"
+
+[[prompt]]
+id = "text-08"
+category = "text"
+text = "A birthday cake with \"Happy 30th Ana\" piped in blue icing on top, candles, party background"
+check = "Exact text: Happy 30th Ana"
+
+# ---------------------------------------------------------------- composition (counting, placement, attributes)
+
+[[prompt]]
+id = "comp-01"
+category = "composition"
+text = "Three red apples and two green pears arranged in a row on a white table"
+check = "Exactly 3 red apples and 2 green pears"
+
+[[prompt]]
+id = "comp-02"
+category = "composition"
+text = "A blue cube on top of a yellow sphere, next to a red cone on the left, plain grey background"
+check = "Colours bound to the right shapes; cube on sphere; cone on the left"
+
+[[prompt]]
+id = "comp-03"
+category = "composition"
+text = "A cat sitting to the left of a dog, both looking at a ball in the middle, living room"
+check = "Cat on the left, dog on the right, ball between"
+
+[[prompt]]
+id = "comp-04"
+category = "composition"
+text = "Five hot air balloons in the sky, each a different colour: red, orange, yellow, green and purple"
+check = "Exactly 5 balloons, all five colours"
+
+[[prompt]]
+id = "comp-05"
+category = "composition"
+text = "A small wooden boat in the bottom right corner of a vast empty lake, mountains in the background, lots of negative space"
+check = "Boat placement and scale"
+
+[[prompt]]
+id = "comp-06"
+category = "composition"
+text = "A bookshelf with exactly four books: a red one, a blue one lying flat, a green one, and a yellow one leaning"
+check = "Four books, colours and poses right"
+
+[[prompt]]
+id = "comp-07"
+category = "composition"
+text = "An astronaut riding a horse on the moon, Earth rising behind them"
+check = "Astronaut on the horse (not the reverse), Earth visible"
+
+[[prompt]]
+id = "comp-08"
+category = "composition"
+text = "A wide shot of a chessboard mid-game, a white knight in the foreground in focus, a black queen blurred behind it"
+check = "Pieces recognisable, focus order right"
+
+# ---------------------------------------------------------------- styles
+
+[[prompt]]
+id = "style-01"
+category = "style"
+text = "A watercolour painting of a Venetian canal with gondolas, loose brushwork, soft pastel washes, paper texture"
+check = "Reads as real watercolour"
+
+[[prompt]]
+id = "style-02"
+category = "style"
+text = "A flat vector illustration of a cozy home office, limited palette of teal, coral and cream, no gradients"
+check = "Flat vector look, palette respected"
+
+[[prompt]]
+id = "style-03"
+category = "style"
+text = "A Japanese ukiyo-e woodblock print of a giant wave crashing over a modern container ship"
+check = "Ukiyo-e style, subject blend"
+
+[[prompt]]
+id = "style-04"
+category = "style"
+text = "Isometric 3D render of a tiny floating island with a cabin, waterfall and pine trees, soft clay-like materials"
+check = "Isometric angle, clean 3D render"
+
+[[prompt]]
+id = "style-05"
+category = "style"
+text = "An oil painting portrait of an old fisherman in the style of Dutch Golden Age painting, dramatic chiaroscuro"
+check = "Painterly texture, lighting"
+
+[[prompt]]
+id = "style-06"
+category = "style"
+text = "A pixel art scene of a fantasy village at sunset, 16-bit era, visible pixels, limited colour palette"
+check = "Consistent pixel grid"
+
+[[prompt]]
+id = "style-07"
+category = "style"
+text = "A minimalist line drawing of a hummingbird and a flower, single continuous black line on white"
+check = "Single-line feel, no fills"
+
+[[prompt]]
+id = "style-08"
+category = "style"
+text = "A cyberpunk city street in the rain, anime key visual style, neon reflections, a girl with a transparent umbrella"
+check = "Anime style, neon, umbrella"
+
+# ---------------------------------------------------------------- people, hands, faces
+
+[[prompt]]
+id = "people-01"
+category = "people"
+text = "Close-up portrait of an elderly woman with deep wrinkles and silver hair, laughing, natural window light"
+check = "Skin realism, expression"
+
+[[prompt]]
+id = "people-02"
+category = "people"
+text = "A pianist's hands playing a grand piano, close-up from the side, fingers on the keys"
+check = "Five fingers per hand, plausible keys"
+
+[[prompt]]
+id = "people-03"
+category = "people"
+text = "A group of four friends of different ethnicities sitting around a campfire, laughing, night, warm firelight on faces"
+check = "Four people, faces coherent"
+
+[[prompt]]
+id = "people-04"
+category = "people"
+text = "A chef in a white uniform holding a knife and slicing a tomato on a cutting board, kitchen background"
+check = "Hand and knife grip, tomato slices"
+
+[[prompt]]
+id = "people-05"
+category = "people"
+text = "Full-body photo of a ballet dancer mid-leap on a dark stage, a single spotlight, motion in the tutu"
+check = "Anatomy in a hard pose"
+
+[[prompt]]
+id = "people-06"
+category = "people"
+text = "A young man giving a thumbs up with his right hand while holding a coffee cup in his left, street background"
+check = "Correct hands, both objects"
+
+[[prompt]]
+id = "people-07"
+category = "people"
+text = "A girl reading a book under a tree, reflection visible in a pond beside her, spring blossoms"
+check = "Reflection consistent with the girl"
+
+[[prompt]]
+id = "people-08"
+category = "people"
+text = "Corporate headshot of a middle-aged Indian man in a navy suit, neutral grey backdrop, soft studio light"
+check = "Clean headshot, no artifacts"
