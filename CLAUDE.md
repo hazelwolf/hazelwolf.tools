@@ -100,3 +100,5 @@ they run without weights, GPU or network. Follow that pattern.
 - Skills are symlinked (not copied) into `.claude/skills/` and `.cursor/skills/`.
 - Keep `docs/plan/KANBAN.md` current; mark a card Done only when verified, then move it to `archive.md`.
 - Never bypass gitleaks with `--no-verify`; allowlist false positives in `.gitleaks.toml`.
+- End each commit with the co-author trailer of the agent committing it (Claude Code or Cursor; see Git in
+  `INSTRUCTIONS.md`), never another agent's.
